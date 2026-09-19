@@ -13,12 +13,13 @@ Se despliega en Vercel; las fotos que sube Gabo viven en Supabase.
 
 - **Portada** con logo de entrada, botón «Cotiza tu evento», carrusel de trabajos y cuatro categorías (Social, Colegios, Retratos, Deporte), cada una con su galería.
 - **Formulario de contacto** que no envía datos a ningún servidor: arma el mensaje y abre WhatsApp con él escrito.
-- **Perfil profesional «Gabo & Planes»**: trayectoria, servicios, cuadros de graduación con marco y galería «Gabo en acción» (blanco y negro; al tocar una foto pasa a color y ofrece consultar por WhatsApp o Instagram).
-- **Panel `/admin`** para subir, ordenar, ocultar, describir y eliminar fotos, sin tocar código.
+- **«Conoce a Gabriel»** (menú superior): su historia (tomada de su brochure), formación y equipo, trabajo con empresas (foto de productos, fotografía profesional y comercial, iluminación), galería «Gabo en acción» (blanco y negro; al tocar una foto pasa a color y ofrece consultar por WhatsApp o Instagram), contacto y descarga del brochure.
+- **«Presupuestos y contacto»** (menú superior): los servicios (matrimonios, colegios, cuadros de graduación con marco —también vende las fotos en digital—, sesiones, empresas, bautizos y otros eventos), cada uno con una imagen y su botón para cotizar por WhatsApp, más los datos de contacto. Las imágenes se cambian desde `/admin` → pestaña **Presupuestos**.
+- **Panel `/admin`** con tres pestañas, sin tocar código: **Fotos** (subir, ordenar, ocultar, describir y eliminar), **Videos** y **Presupuestos** (cambiar la imagen de cada servicio).
 - **Videos:** sección «Videos» con hasta 3 videos de YouTube. Cada uno abre una ventana con el video y un botón para cotizar por WhatsApp. Se cargan desde `/admin` → pestaña **Videos**, pegando el enlace de YouTube (sin videos cargados, la sección no aparece).
 - **Buscadores y redes:** metadatos, imagen para compartir (`public/og.jpg`), datos estructurados JSON-LD, `sitemap.xml`, `robots.txt` y `manifest`.
 - **Íconos:** `favicon.ico`, `icon.svg`, `apple-icon.png` e íconos de 192 y 512 px (uno «maskable»), dibujados desde el logo (`public/images/gabofotos-logo.jpg`).
-- **Ficha técnica en PDF** opcional (ver más abajo).
+- **Brochure en PDF** descargable desde el pie de página y desde «Conoce a Gabriel» (ver más abajo).
 
 ## Correr en local
 
@@ -47,9 +48,12 @@ proxy.ts              primera barrera de /admin y /api/admin
 | --- | --- |
 | Teléfono, correo, Instagram, Facebook, Flickr, WhatsApp | `lib/site-config.ts` |
 | Categorías, portadas, álbumes de Flickr y fotos de respaldo | `lib/gallery.ts` |
-| Fotos de la galería «Gabo en acción» | `lib/pro-gallery.ts` y `public/images/gabo/` |
+| Fotos de la galería «Gabo en acción» y de empresas | `lib/pro-gallery.ts`, `public/images/gabo/` y `public/images/empresas/` |
 | Niveles y medida de los cuadros de graduación | `lib/frames.ts` |
-| Textos de «Gabo & Planes» (biografía, trayectoria, servicios) | `components/about-plans-modal.tsx` |
+| Historia, trayectoria y trabajo con empresas («Conoce a Gabriel») | `components/conoce-gabriel-modal.tsx` |
+| Textos de cada servicio («Presupuestos y contacto») | `components/presupuestos-modal.tsx` (los cuadros de graduación, en `components/frame-picker.tsx`) |
+| Imágenes originales de los servicios | `lib/planes.ts` (se cambian sin código desde `/admin` → Presupuestos) |
+| Cobertura (Región Metropolitana y regiones), teléfono y redes dentro de los modales | `components/contacto-bloque.tsx` y `lib/site-config.ts` |
 | Opciones del formulario de contacto | `components/contact-form.tsx` |
 | Panel de fotos | `components/admin/admin-panel.tsx`, `app/api/admin/`, `lib/admin-auth.ts` |
 | Videos de YouTube (sección, ventana y panel) | `components/video-section.tsx`, `components/video-tunnel.tsx`, `components/admin/videos-panel.tsx`, `lib/videos.ts` (`MAX_VIDEOS` = cuántos se muestran) |
@@ -91,8 +95,8 @@ Gabo entra con su contraseña y puede **subir varias fotos a la vez** (desde el 
 ### Puesta en marcha (una sola vez)
 
 1. Crear un proyecto en [supabase.com](https://supabase.com), **propio de GABOFOTOS**.
-2. En su SQL Editor, correr `supabase/schema.sql` (crea la tabla `fotos`, el bucket público `fotos` y la tabla `videos`).
-   Si el proyecto de Supabase ya existía antes de los videos, basta correr el bloque «VIDEOS» del final del archivo.
+2. En su SQL Editor, correr `supabase/schema.sql` (crea las tablas `fotos`, `videos` y `plan_imagenes`, y el bucket público `fotos`).
+   Si el proyecto de Supabase ya existía antes, basta correr desde el bloque «VIDEOS» hasta el final del archivo.
 3. Cargar las variables de entorno en Vercel y volver a desplegar.
 4. Entrar a `/admin`, subir una foto de prueba y confirmar que aparece en el sitio.
 
@@ -117,8 +121,11 @@ Se cargan en Vercel (Settings → Environment Variables, en Production y Preview
 
 - **Sin precios.** El sitio no publica valores: todo lleva a cotizar por WhatsApp (incluidos los cuadros de graduación).
   Los presupuestos se envían por WhatsApp.
+- **Cobertura:** Región Metropolitana; los viajes a regiones tienen un costo adicional de traslado, que también se cotiza por WhatsApp (sin publicar montos).
 - **Cuadros con marco: solo para fotos de graduación** (licenciatura y egreso), en tres niveles del mismo tamaño (30×40 cm).
   No se ofrecen para otros trabajos, y los marcos disponibles los muestra Gabo al cotizar.
+- **Fotos en digital:** además de los cuadros, Gabo también vende las fotos de graduación en formato digital. Así lo dice el sitio en
+  «Cuadros de graduación» (con un enlace a WhatsApp para consultarlas) y el formulario de contacto tiene esa opción.
 - **Menores de edad:** sus rostros se publican solo con autorización del colegio o los apoderados. Nada de listas con nombres
   completos: los afiches de licenciatura y egreso usan nombres de ejemplo.
 
@@ -128,16 +135,20 @@ En `lib/gallery.ts`, un álbum puede indicarse solo con su `title`. Para que apa
 público con ese nombre exacto: **Colegios** (el más importante), **Hockey**, **Eventos**, **Nacimientos** y **Cuadros**
 (de graduación); opcionales: **Licenciaturas** y **Galas**. Se actualizan solos (caché de una hora).
 
-## Ficha técnica (PDF)
+## Brochure (PDF)
 
-El pie de página muestra «Descargar ficha técnica» si existe `public/GaboFotos-Brochure.pdf` **al compilar**
-(`next.config.mjs` lo revisa y deja el resultado en `NEXT_PUBLIC_BROCHURE`). Después de agregarlo hay que volver a desplegar.
-Antes de subirla: quitar la fecha de nacimiento de la última página y corregir `flick.com` por `flickr.com`.
+El brochure de Gabo (`public/GaboFotos-Brochure.pdf`, versión 2026, autorizado por él para descargar) se ofrece en el pie de página
+y en «Conoce a Gabriel». El botón aparece solo si el archivo existe **al compilar** (`next.config.mjs` lo revisa y deja el resultado
+en `NEXT_PUBLIC_BROCHURE`). A la copia publicada se le **quitó la fecha de nacimiento** de la última página (el texto se borró del PDF,
+no se tapó). Para cambiar el brochure: reemplazar ese archivo, cuidando de no dejar datos personales, y volver a desplegar.
 
 ## Estado de verificación y mantenimiento
 
 - Lo que se probó por partes: lector de imágenes, sesión firmada, rutas del panel (subir, editar, ordenar, borrar), login,
   proxy y armado de galerías, con Supabase simulado. Revisión de imports, archivos públicos, rutas y anclas: sin enlaces rotos.
+- Las ventanas «Conoce a Gabriel» y «Presupuestos y contacto» se probaron con React en un navegador (abrir, cambiar de una a otra,
+  servicios, textos, enlaces de WhatsApp, Escape y menú móvil), pero **sin los estilos de Tailwind**: el diseño (espacios, columnas,
+  cómo se ve en celular) hay que revisarlo en el primer despliegue de prueba.
 - **Lo que no se pudo probar en el entorno donde se armó:** compilar (`pnpm build`) ni usar un Supabase real ni la compresión de fotos
   en un navegador. En el primer despliegue: compilar, subir una foto de prueba desde el celular y confirmar que se ve.
 - `next.config.mjs` tiene `typescript.ignoreBuildErrors: true` (viene de v0). Cuando el primer build salga limpio, conviene quitarlo.

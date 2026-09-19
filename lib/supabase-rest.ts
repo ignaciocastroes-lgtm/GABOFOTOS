@@ -7,6 +7,7 @@
 // Solo para código de servidor: usa la llave secreta (SUPABASE_SERVICE_ROLE_KEY).
 
 import { esUuid, type CategoriaFoto, type FotoDB } from "./fotos"
+import type { PlanImagenDB } from "./planes"
 import type { VideoDB } from "./videos"
 
 const BUCKET = "fotos"
@@ -147,6 +148,37 @@ export async function actualizarVideo(id: string, cambios: CambiosVideo): Promis
 export async function borrarVideo(id: string): Promise<void> {
   if (!esUuid(id)) return
   await pedir(`/rest/v1/videos?id=eq.${id}`, { method: "DELETE", cache: "no-store" })
+}
+
+// ── Tabla `plan_imagenes` ───────────────────────────────────────────────────
+
+export async function listarPlanImagenes(opts: { revalidate?: number } = {}): Promise<PlanImagenDB[]> {
+  const res = await pedir(
+    "/rest/v1/plan_imagenes?select=*",
+    opts.revalidate ? { next: { revalidate: opts.revalidate } } : { cache: "no-store" },
+  )
+  return (await res.json()) as PlanImagenDB[]
+}
+
+/** La clave viene de una lista cerrada (PLANES) y se valida antes de llamar; aun así se codifica. */
+export async function obtenerPlanImagen(clave: string): Promise<PlanImagenDB | null> {
+  const res = await pedir(`/rest/v1/plan_imagenes?select=*&clave=eq.${encodeURIComponent(clave)}&limit=1`, { cache: "no-store" })
+  return ((await res.json()) as PlanImagenDB[])[0] ?? null
+}
+
+/** Crea la fila o, si ya existe, la reemplaza (una imagen por servicio). */
+export async function guardarPlanImagen(fila: Omit<PlanImagenDB, "updated_at">): Promise<PlanImagenDB> {
+  const res = await pedir("/rest/v1/plan_imagenes?on_conflict=clave", {
+    method: "POST",
+    headers: { ...JSON_H, Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify({ ...fila, updated_at: new Date().toISOString() }),
+    cache: "no-store",
+  })
+  return ((await res.json()) as PlanImagenDB[])[0]
+}
+
+export async function borrarPlanImagen(clave: string): Promise<void> {
+  await pedir(`/rest/v1/plan_imagenes?clave=eq.${encodeURIComponent(clave)}`, { method: "DELETE", cache: "no-store" })
 }
 
 // ── Storage ─────────────────────────────────────────────────────────────────

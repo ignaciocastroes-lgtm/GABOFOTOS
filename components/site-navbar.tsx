@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
-import { AboutPlansModal } from "./about-plans-modal"
+import type { PlanImagenes } from "@/lib/planes"
+import { ConoceGabrielModal } from "./conoce-gabriel-modal"
+import { PresupuestosModal } from "./presupuestos-modal"
 
 const categoryLinks = [
   { href: "#social", label: "SOCIAL" },
@@ -15,9 +17,10 @@ const categoryLinks = [
 
 const linkClass = "transition-colors hover:text-yellow-500 dark:hover:text-yellow-400"
 
-export function SiteNavbar() {
+export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [plansOpen, setPlansOpen] = useState(false)
 
   useEffect(() => {
     if (!menuOpen) return
@@ -29,10 +32,19 @@ export function SiteNavbar() {
   }, [menuOpen])
 
   const closeAbout = useCallback(() => setAboutOpen(false), [])
+  const closePlans = useCallback(() => setPlansOpen(false), [])
 
+  // Solo una ventana abierta a la vez: abrir una cierra la otra.
   function openAbout() {
     setMenuOpen(false)
+    setPlansOpen(false)
     setAboutOpen(true)
+  }
+
+  function openPlans() {
+    setMenuOpen(false)
+    setAboutOpen(false)
+    setPlansOpen(true)
   }
 
   return (
@@ -63,14 +75,17 @@ export function SiteNavbar() {
           </a>
 
           <div className="flex items-center gap-4 sm:gap-6">
-            <nav className="hidden items-center gap-8 text-xs tracking-[0.2em] text-slate-500 lg:flex dark:text-zinc-400">
+            <nav className="hidden items-center gap-6 text-xs tracking-[0.2em] text-slate-500 xl:flex dark:text-zinc-400">
               {categoryLinks.map((link) => (
                 <a key={link.href} className={linkClass} href={link.href}>
                   {link.label}
                 </a>
               ))}
               <button type="button" onClick={openAbout} className={linkClass}>
-                GABO &amp; PLANES
+                CONOCE A GABRIEL
+              </button>
+              <button type="button" onClick={openPlans} className={linkClass}>
+                PRESUPUESTOS
               </button>
               <a
                 className="rounded-full border border-yellow-500 px-4 py-1.5 text-yellow-700 transition-colors hover:bg-yellow-500 hover:text-white dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-400 dark:hover:text-zinc-950"
@@ -88,7 +103,7 @@ export function SiteNavbar() {
               aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={menuOpen}
               aria-controls="menu-movil"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-700 ring-1 ring-slate-300 transition-colors hover:text-yellow-500 hover:ring-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 lg:hidden dark:text-zinc-200 dark:ring-zinc-700 dark:hover:text-yellow-400"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-700 ring-1 ring-slate-300 transition-colors hover:text-yellow-500 hover:ring-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 xl:hidden dark:text-zinc-200 dark:ring-zinc-700 dark:hover:text-yellow-400"
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -99,7 +114,7 @@ export function SiteNavbar() {
           <nav
             id="menu-movil"
             aria-label="Menú principal"
-            className="border-t border-slate-200 bg-slate-50/95 lg:hidden dark:border-zinc-800/80 dark:bg-zinc-950/95"
+            className="border-t border-slate-200 bg-slate-50/95 xl:hidden dark:border-zinc-800/80 dark:bg-zinc-950/95"
           >
             <div className="mx-auto flex max-w-6xl flex-col px-6 py-2 text-sm tracking-[0.2em] text-slate-600 dark:text-zinc-300">
               {categoryLinks.map((link) => (
@@ -113,7 +128,10 @@ export function SiteNavbar() {
                 </a>
               ))}
               <button type="button" onClick={openAbout} className={`py-3 text-left ${linkClass}`}>
-                GABO &amp; PLANES
+                CONOCE A GABRIEL
+              </button>
+              <button type="button" onClick={openPlans} className={`py-3 text-left ${linkClass}`}>
+                PRESUPUESTOS
               </button>
               <a
                 href="#contacto"
@@ -127,7 +145,8 @@ export function SiteNavbar() {
         )}
       </header>
 
-      <AboutPlansModal open={aboutOpen} onClose={closeAbout} />
+      <ConoceGabrielModal open={aboutOpen} onClose={closeAbout} onPresupuestos={openPlans} />
+      <PresupuestosModal open={plansOpen} onClose={closePlans} imagenes={planImagenes} onConocer={openAbout} />
     </>
   )
 }

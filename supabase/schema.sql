@@ -37,7 +37,7 @@ on conflict (id) do nothing;
 -- VIDEOS — videos de YouTube administrables desde /admin
 --
 -- Si el proyecto de Supabase ya existía (ya corriste lo de arriba), corre SOLO desde esta línea
--- hasta el final. Es seguro correrlo más de una vez.
+-- hasta el final del archivo (incluye el bloque PLAN_IMAGENES). Es seguro correrlo más de una vez.
 -- ============================================================
 
 create table if not exists videos (
@@ -55,9 +55,27 @@ create index if not exists videos_orden_idx on videos (orden, created_at);
 -- Igual que `fotos`: RLS activado y sin políticas; todo pasa por el servidor con la llave secreta.
 alter table videos enable row level security;
 
+-- ============================================================
+-- PLAN_IMAGENES — imágenes de «Presupuestos y contacto», cambiables desde /admin
+--
+-- Si ya corriste lo anterior, corre solo este bloque. Es seguro correrlo más de una vez. (Las imágenes se guardan en el bucket "fotos", carpeta planes/.)
+-- ============================================================
+
+create table if not exists plan_imagenes (
+  -- Servicio al que pertenece la imagen (matrimonios, colegios, cuadros, sesiones, empresas, bautizos, otros).
+  clave text primary key,
+  path text not null,
+  ancho int not null check (ancho > 0),
+  alto int not null check (alto > 0),
+  updated_at timestamptz not null default now()
+);
+
+alter table plan_imagenes enable row level security;
+
 -- ── Verificación (opcional) ─────────────────────────────────
 -- Después de correr todo, estas consultas deberían devolver:
---   una fila con public = true, y un conteo de 0 fotos y de 0 videos.
+--   una fila con public = true, y un conteo de 0 fotos, 0 videos y 0 imágenes de presupuestos.
 -- select id, public from storage.buckets where id = 'fotos';
 -- select count(*) from fotos;
 -- select count(*) from videos;
+-- select count(*) from plan_imagenes;

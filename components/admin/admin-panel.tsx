@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, Eye, EyeOff, Loader2, LogOut, Trash2, Upload } from "lucide-react"
 import { api } from "./api"
+import { comprimir } from "./imagen"
+import { PlanesPanel } from "./planes-panel"
 import { VideosPanel } from "./videos-panel"
 
 type CategoriaId = "social" | "colegios" | "retratos" | "deporte"
@@ -24,41 +26,6 @@ type Foto = {
   orden: number
   visible: boolean
   created_at: string
-}
-
-const MAX_LADO = 1600
-
-/**
- * Prepara la foto antes de subirla: la endereza según el celular, la achica a 1600 px como máximo
- * y la guarda como WebP (o JPG si el navegador no puede). Una foto de celular de 4 MB queda en
- * ~250 KB, y al volver a dibujarla se borran los datos ocultos (ubicación GPS, modelo del celular).
- */
-async function comprimir(archivo: File): Promise<Blob> {
-  let bitmap: ImageBitmap
-  try {
-    bitmap = await createImageBitmap(archivo, { imageOrientation: "from-image" })
-  } catch {
-    throw new Error("No se pudo leer la foto. Usa JPG, PNG o WebP.")
-  }
-  const escala = Math.min(1, MAX_LADO / Math.max(bitmap.width, bitmap.height))
-  const ancho = Math.round(bitmap.width * escala)
-  const alto = Math.round(bitmap.height * escala)
-
-  const canvas = document.createElement("canvas")
-  canvas.width = ancho
-  canvas.height = alto
-  const ctx = canvas.getContext("2d")
-  if (!ctx) throw new Error("Este navegador no puede procesar fotos.")
-  ctx.drawImage(bitmap, 0, 0, ancho, alto)
-  bitmap.close?.()
-
-  const aBlob = (tipo: string, calidad: number) =>
-    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, tipo, calidad))
-
-  let blob = await aBlob("image/webp", 0.82)
-  if (!blob || blob.type !== "image/webp") blob = await aBlob("image/jpeg", 0.86)
-  if (!blob) throw new Error("No se pudo preparar la foto.")
-  return blob
 }
 
 function ordenar(fotos: Foto[]) {
@@ -300,7 +267,7 @@ export function AdminPanel() {
   const [error, setError] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [vista, setVista] = useState<CategoriaId>("social")
-  const [seccion, setSeccion] = useState<"fotos" | "videos">("fotos")
+  const [seccion, setSeccion] = useState<"fotos" | "videos" | "presupuestos">("fotos")
 
   const cargar = useCallback(async () => {
     setError(null)
@@ -402,7 +369,7 @@ export function AdminPanel() {
       </header>
 
       <div role="tablist" aria-label="Secciones del panel" className="mt-6 flex gap-2 border-b border-slate-200 pb-4 dark:border-zinc-800">
-        {(["fotos", "videos"] as const).map((id) => (
+        {(["fotos", "videos", "presupuestos"] as const).map((id) => (
           <button
             key={id}
             type="button"
@@ -415,7 +382,7 @@ export function AdminPanel() {
                 : "text-slate-600 ring-1 ring-slate-300 hover:ring-yellow-500 dark:text-zinc-300 dark:ring-zinc-700"
             }`}
           >
-            {id === "fotos" ? "Fotos" : "Videos"}
+            {id === "fotos" ? "Fotos" : id === "videos" ? "Videos" : "Presupuestos"}
           </button>
         ))}
       </div>
@@ -423,6 +390,10 @@ export function AdminPanel() {
       {seccion === "videos" ? (
         <div className="mt-6">
           <VideosPanel />
+        </div>
+      ) : seccion === "presupuestos" ? (
+        <div className="mt-6">
+          <PlanesPanel />
         </div>
       ) : (
         <>

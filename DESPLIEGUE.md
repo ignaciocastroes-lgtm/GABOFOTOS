@@ -30,8 +30,8 @@ Orden recomendado: **Supabase → Vercel → probar → dominio → ficha PDF**.
 1. En [supabase.com](https://supabase.com) → **New project**. Nombre: `gabofotos`. Región: **South America (São Paulo)**.
    Guarda la contraseña de la base de datos donde no se pierda (no se usa en el sitio, pero la pide Supabase).
 2. Cuando termine de crearse: **SQL Editor → New query**, pega el contenido de `supabase/schema.sql` y pulsa **Run**.
-   Crea la tabla `fotos`, el bucket público `fotos` y la tabla `videos`.
-   - Si tu Supabase ya estaba creado antes de agregar los videos, corre **solo el bloque «VIDEOS»** del final del archivo (es seguro repetirlo).
+   Crea las tablas `fotos`, `videos` y `plan_imagenes`, y el bucket público `fotos`.
+   - Si tu Supabase ya estaba creado antes, corre **solo desde el bloque «VIDEOS» hasta el final** del archivo (es seguro repetirlo).
    - Si la parte del bucket da error, créalo a mano: **Storage → New bucket** → nombre `fotos` → marca **Public bucket**.
 3. Copia dos datos, los necesitas en el paso siguiente:
    - **Project URL**: Settings → API (o "Data API").
@@ -69,6 +69,9 @@ Abre la dirección de Preview que da Vercel y revisa, en el celular y en el comp
 - [ ] En **Colegios** el panel exige marcar la autorización antes de subir.
 - [ ] En el celular y en la tablet las fotos se ven en blanco y negro y **pasan a color al tocarlas**; en el PC, al pasar el mouse.
 - [ ] En `/admin` → pestaña **Videos**: pegar un enlace de YouTube, ponerle título y agregarlo. En menos de un minuto aparece la sección «Videos» en el inicio; al tocar la tarjeta se abre el video y el botón verde abre WhatsApp con el mensaje escrito.
+- [ ] En el menú, **Conoce a Gabriel** abre su historia, las fotos de empresas y el contacto; **Descargar brochure (PDF)** baja el archivo y la última página **no** trae fecha de nacimiento. Revisar en celular y en PC.
+- [ ] En el menú, **Presupuestos** abre los servicios con su imagen; **Cuadros de graduación** dice que también vende las fotos en digital; los botones verdes abren WhatsApp con el mensaje escrito.
+- [ ] En `/admin` → pestaña **Presupuestos**: cambiar la imagen de un servicio; en menos de un minuto aparece en la ventana. **Volver a la original** la restaura.
 
 Si todo está bien: en GitHub haz *merge* de la rama a `main`. Vercel publica en producción.
 
@@ -90,8 +93,8 @@ Si todo está bien: en GitHub haz *merge* de la rama a `main`. Vercel publica en
       (WhatsApp guarda en memoria las vistas previas: si ves una vieja, prueba con otro chat o espera.)
 - [ ] [Google Search Console](https://search.google.com/search-console) → agregar `gabofotos.cl` → enviar el mapa del sitio
       `https://www.gabofotos.cl/sitemap.xml`.
-- [ ] **Ficha técnica (PDF):** cuando Gabo reexporte el brochure (sin la fecha de nacimiento y con `flickr.com` bien
-      escrito), guárdalo como `public/GaboFotos-Brochure.pdf` y vuelve a desplegar. El botón aparece solo.
+- [ ] **Brochure (PDF):** ya viene incluido (`public/GaboFotos-Brochure.pdf`, sin la fecha de nacimiento). Si Gabo lo reexporta,
+      reemplaza ese archivo (sin datos personales) y vuelve a desplegar. El botón aparece solo.
 - [ ] Imprime la dirección en las tarjetas recién cuando el dominio esté funcionando.
 
 ## 7. Uso diario de Gabo
@@ -100,6 +103,9 @@ Si todo está bien: en GitHub haz *merge* de la rama a `main`. Vercel publica en
 2. Elegir la categoría, seleccionar las fotos (se pueden elegir varias a la vez) y **Subir**.
 3. Ordenar con las flechas, ocultar con el ojo, describir cada foto y eliminar con el tacho.
 4. Los cambios se ven en el sitio en menos de un minuto.
+
+Presupuestos: en `/admin` → pestaña **Presupuestos** se cambia la imagen de cada servicio (**Cambiar imagen**) o se vuelve a la
+original (**Volver a la original**). Solo cambia la imagen; los textos de los servicios se editan en el código.
 
 Videos: en `/admin` → pestaña **Videos** se pega el enlace de YouTube (botón *Compartir* del video), se le pone un título y se
 agrega. Se pueden reordenar, ocultar, cambiar de enlace y eliminar (eliminar solo lo quita del sitio, no borra el video de YouTube).
@@ -116,6 +122,7 @@ Reglas: fotos de niños y colegios solo con autorización del colegio o los apod
 | Al subir una foto: "Faltan SUPABASE_URL…" | Faltan las variables de Supabase | Revisar paso 3 y volver a desplegar |
 | Al subir una foto: error de Storage o bucket | El bucket `fotos` no existe | Crearlo como público (paso 2) |
 | La foto sube pero no se ve en el sitio | Caché de un minuto, o la foto está oculta | Esperar 1 minuto; revisar el ojo de la foto |
+| Al cambiar una imagen en Presupuestos da error, o no se guarda | Falta correr el bloque «PLAN_IMAGENES» de `schema.sql` en Supabase | Correrlo (paso 2) y reintentar |
 | La sección «Videos» no aparece | No hay videos cargados/visibles, o falta correr el bloque «VIDEOS» de `schema.sql` en Supabase | Revisar `/admin` → Videos; correr el SQL si el panel da error |
 | «Ese enlace no parece de YouTube» al agregar un video | Se pegó otro tipo de enlace | Copiar el enlace desde el botón *Compartir* del video (`youtu.be/…` o `youtube.com/watch?v=…`) |
 | Solo se ven las fotos de ejemplo | Supabase sin configurar, o no hay fotos visibles en esa categoría | Revisar variables y subir fotos |

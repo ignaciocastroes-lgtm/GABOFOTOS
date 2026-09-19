@@ -1,5 +1,6 @@
 import { IntroSplash } from "@/components/intro-splash"
 import { SiteNavbar } from "@/components/site-navbar"
+import { cargarImagenesPlanes } from "@/lib/planes-data"
 import { FeaturedStrip } from "@/components/featured-strip"
 import { CategoryGrid } from "@/components/category-grid"
 import { VideoSection } from "@/components/video-section"
@@ -9,12 +10,15 @@ import { SiteFooter } from "@/components/site-footer"
 // Las fotos que Gabo sube desde /admin aparecen aquí como máximo en un minuto.
 export const revalidate = 60
 
-export default function Home() {
+export default async function Home() {
+  // Imágenes de «Presupuestos y contacto»: las que Gabo cambió desde /admin o, si no cambió, las originales.
+  const planImagenes = await cargarImagenesPlanes()
+
   return (
     <main className="relative min-h-dvh bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100">
       <IntroSplash />
 
-      <SiteNavbar />
+      <SiteNavbar planImagenes={planImagenes} />
 
       <section className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-6 pb-16 pt-28 sm:pt-32">
         <p className="text-sm tracking-[0.3em] text-slate-500 dark:text-zinc-400">FOTOGRAFÍA · BLANCO Y NEGRO</p>

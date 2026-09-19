@@ -14,6 +14,8 @@ const jobTypes = [
   "Sesión fotográfica",
   "Deporte",
   "Cuadro de graduación con marco",
+  "Fotos de graduación en digital",
+  "Empresa (fotografía de productos o comercial)",
   "Otro",
 ]
 

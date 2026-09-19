@@ -1,6 +1,7 @@
 // Cuadros de graduación con marco.
 // REGLA: los cuadros con marco son SOLO para fotos de graduación (licenciatura y egreso).
 // No se ofrecen para matrimonios, retratos, deporte ni otros trabajos.
+// Además del cuadro, Gabo vende las fotos de graduación en formato digital (así se dice en el sitio).
 //
 // Según la llamada con Gabo (17-sep-2026):
 //  - son 3 tipos de marco, uno mejor que otro, y todos del mismo tamaño;

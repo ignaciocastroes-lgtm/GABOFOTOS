@@ -128,7 +128,7 @@ export function SiteFooter() {
               className="inline-flex items-center gap-2 rounded-full border border-yellow-500 px-4 py-2 text-sm text-yellow-700 transition-colors hover:bg-yellow-500 hover:text-white dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-400 dark:hover:text-zinc-950"
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              Descargar ficha técnica (PDF)
+              Descargar brochure (PDF)
             </a>
           )}
 

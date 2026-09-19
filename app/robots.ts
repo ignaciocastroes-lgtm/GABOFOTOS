@@ -1,10 +1,9 @@
-import type { MetadataRoute } from 'next'
-
-const BASE = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://internacionalloespejo.cl'
+import type { MetadataRoute } from "next"
+import { siteConfig } from "@/lib/site-config"
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/apoyo/', '/privacidad', '/admin'] },
-    sitemap: `${BASE}/sitemap.xml`,
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/admin"] },
+    sitemap: `${siteConfig.url}/sitemap.xml`,
   }
 }

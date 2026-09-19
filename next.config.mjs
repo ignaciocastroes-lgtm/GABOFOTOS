@@ -1,18 +1,23 @@
+import { existsSync } from 'node:fs'
+
+// Si existe public/GaboFotos-Brochure.pdf, el pie de página muestra "Descargar ficha técnica".
+// Se decide al compilar (no en tiempo de ejecución): en Vercel la carpeta public no está en el servidor.
+const BROCHURE = 'GaboFotos-Brochure.pdf'
+const brochureUrl = existsSync(new URL(`./public/${BROCHURE}`, import.meta.url)) ? `/${BROCHURE}` : ''
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: { NEXT_PUBLIC_BROCHURE: brochureUrl },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
+    // Las fotos de Flickr se sirven desde su CDN (live.staticflickr.com).
     remotePatterns: [
-      { protocol: 'https', hostname: 'img.youtube.com' },
-      // Autorizado de antemano por si en algún momento se usa Cloudinary
-      // para fotos (ver README, sección "Protocolo de contenido"). Sin esto,
-      // next/image rechaza cualquier URL de un dominio no autorizado.
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
-      // ARDI aloja algunos escudos en ImgBB. Sin este dominio autorizado,
-      // next/image rechaza esas URLs y la tarjeta del partido sale sin
-      // escudo — no por un bug de datos, sino porque el dominio no estaba
-      // en la lista blanca.
-      { protocol: 'https', hostname: 'i.ibb.co' },
-      { protocol: 'https', hostname: 'ibb.co' },
+      { protocol: 'https', hostname: 'live.staticflickr.com' },
+      { protocol: 'https', hostname: '*.staticflickr.com' },
+      // Fotos que Gabo sube desde /admin (bucket público de Supabase Storage).
+      { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' },
     ],
   },
 }

@@ -1,43 +1,68 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Oswald } from 'next/font/google'
+import { ThemeProvider } from '@/components/theme-provider'
+import { siteConfig } from '@/lib/site-config'
 import './globals.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
-const oswald = Oswald({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-oswald',
-  display: 'swap',
-})
-
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://internacionalloespejo.cl'
+const description =
+  'Fotografía profesional de matrimonios, retratos, eventos escolares y deporte en Santiago, Chile. Cotiza por WhatsApp.'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE),
-  title: {
-    default: 'Club Hockey Patín Internacional Lo Espejo',
-    template: '%s | Internacional Lo Espejo',
-  },
-  description:
-    'El único club de hockey patín de Lo Espejo. Escuela gratuita para niñas, niños y adolescentes, ocho series en competencia y una rama femenina en crecimiento.',
+  metadataBase: new URL(siteConfig.url),
+  title: 'GABOFOTOS · Fotógrafo profesional en Santiago',
+  description,
   openGraph: {
-    type: 'website',
+    title: 'GABOFOTOS · Fotógrafo profesional en Santiago',
+    description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     locale: 'es_CL',
-    siteName: 'Internacional Lo Espejo',
-    images: ['/escudo.webp'],
+    type: 'website',
+    images: [{ url: '/og.jpg', width: 1200, height: 630, alt: 'GABOFOTOS' }],
   },
-  alternates: { canonical: '/' },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GABOFOTOS · Fotógrafo profesional en Santiago',
+    description,
+    images: ['/og.jpg'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+  },
+}
+
+// Datos estructurados para buscadores: negocio, contacto y redes oficiales.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: siteConfig.name,
+  founder: { '@type': 'Person', name: siteConfig.owner },
+  description,
+  url: siteConfig.url,
+  image: `${siteConfig.url}/og.jpg`,
+  telephone: siteConfig.phone.tel,
+  email: siteConfig.email,
+  address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressCountry: 'CL' },
+  areaServed: 'Santiago, Chile',
+  sameAs: [
+    siteConfig.social.instagram.url,
+    siteConfig.social.instagramCorp.url,
+    siteConfig.social.facebook.url,
+    siteConfig.social.flickr.url,
+  ],
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light',
-  themeColor: '#cc1a1d',
+  colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
 }
 
 export default function RootLayout({
@@ -46,9 +71,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${oswald.variable} bg-background`}>
-      <body className="font-sans antialiased">
-        {children}
+    <html lang="es" className="bg-slate-50 dark:bg-zinc-950" suppressHydrationWarning>
+      <body className="antialiased bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          {children}
+        </ThemeProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

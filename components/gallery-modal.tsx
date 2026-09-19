@@ -163,7 +163,7 @@ export function GalleryModal({ open, categoria, title, subtitle, onClose }: Gall
                     sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
                     // Las fotos remotas (Supabase, Flickr) ya vienen redimensionadas desde su CDN.
                     unoptimized={photo.remote}
-                    className="h-auto w-full object-cover grayscale bn-con-mouse transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0"
+                    className="h-auto w-full object-cover bn-con-mouse transition-all duration-500 group-hover:scale-105"
                   />
                 )
 

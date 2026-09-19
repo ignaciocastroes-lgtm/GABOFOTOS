@@ -40,7 +40,7 @@ export function FeaturedCarousel({ photos }: { photos: GalleryPhoto[] }) {
               sizes="(min-width: 640px) 384px, 288px"
               // Las fotos remotas (Supabase, Flickr) ya vienen redimensionadas desde su CDN.
               unoptimized={photo.remote}
-              className="h-full w-full object-cover grayscale bn-con-mouse transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-active:grayscale-0"
+              className="h-full w-full object-cover bn-con-mouse transition-all duration-500 group-hover:scale-105"
             />
           </figure>
         ))}

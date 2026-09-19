@@ -7,6 +7,7 @@
 // Solo para código de servidor: usa la llave secreta (SUPABASE_SERVICE_ROLE_KEY).
 
 import { esUuid, type CategoriaFoto, type FotoDB } from "./fotos"
+import type { VideoDB } from "./videos"
 
 const BUCKET = "fotos"
 
@@ -104,6 +105,48 @@ export async function actualizarFoto(id: string, cambios: CambiosFoto): Promise<
 export async function borrarFoto(id: string): Promise<void> {
   if (!esUuid(id)) return
   await pedir(`/rest/v1/fotos?id=eq.${id}`, { method: "DELETE", cache: "no-store" })
+}
+
+// ── Tabla `videos` ──────────────────────────────────────────────────────────
+
+export async function listarVideos(
+  opts: { soloVisibles?: boolean; revalidate?: number } = {},
+): Promise<VideoDB[]> {
+  const q = new URLSearchParams({ select: "*", order: "orden.asc,created_at.asc" })
+  if (opts.soloVisibles) q.set("visible", "eq.true")
+  const res = await pedir(
+    `/rest/v1/videos?${q}`,
+    opts.revalidate ? { next: { revalidate: opts.revalidate } } : { cache: "no-store" },
+  )
+  return (await res.json()) as VideoDB[]
+}
+
+export async function insertarVideo(fila: Omit<VideoDB, "created_at">): Promise<VideoDB> {
+  const res = await pedir("/rest/v1/videos", {
+    method: "POST",
+    headers: { ...JSON_H, Prefer: "return=representation" },
+    body: JSON.stringify(fila),
+    cache: "no-store",
+  })
+  return ((await res.json()) as VideoDB[])[0]
+}
+
+export type CambiosVideo = Partial<Pick<VideoDB, "titulo" | "youtube_id" | "visible" | "orden">>
+
+export async function actualizarVideo(id: string, cambios: CambiosVideo): Promise<VideoDB | null> {
+  if (!esUuid(id)) return null
+  const res = await pedir(`/rest/v1/videos?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { ...JSON_H, Prefer: "return=representation" },
+    body: JSON.stringify(cambios),
+    cache: "no-store",
+  })
+  return ((await res.json()) as VideoDB[])[0] ?? null
+}
+
+export async function borrarVideo(id: string): Promise<void> {
+  if (!esUuid(id)) return
+  await pedir(`/rest/v1/videos?id=eq.${id}`, { method: "DELETE", cache: "no-store" })
 }
 
 // ── Storage ─────────────────────────────────────────────────────────────────

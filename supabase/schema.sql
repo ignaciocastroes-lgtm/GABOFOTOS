@@ -33,8 +33,31 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('fotos', 'fotos', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do nothing;
 
+-- ============================================================
+-- VIDEOS — videos de YouTube administrables desde /admin
+--
+-- Si el proyecto de Supabase ya existía (ya corriste lo de arriba), corre SOLO desde esta línea
+-- hasta el final. Es seguro correrlo más de una vez.
+-- ============================================================
+
+create table if not exists videos (
+  id uuid primary key default gen_random_uuid(),
+  titulo text not null default '',
+  -- Id de 11 caracteres del video de YouTube (lo saca el servidor del enlace que se pega en /admin).
+  youtube_id text not null check (youtube_id ~ '^[A-Za-z0-9_-]{11}$'),
+  orden int not null default 0,
+  visible boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists videos_orden_idx on videos (orden, created_at);
+
+-- Igual que `fotos`: RLS activado y sin políticas; todo pasa por el servidor con la llave secreta.
+alter table videos enable row level security;
+
 -- ── Verificación (opcional) ─────────────────────────────────
--- Después de correr todo, estas dos consultas deberían devolver:
---   una fila con public = true, y un conteo de 0 fotos.
+-- Después de correr todo, estas consultas deberían devolver:
+--   una fila con public = true, y un conteo de 0 fotos y de 0 videos.
 -- select id, public from storage.buckets where id = 'fotos';
 -- select count(*) from fotos;
+-- select count(*) from videos;

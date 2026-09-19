@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { BnToque } from '@/components/bn-toque'
 import { ThemeProvider } from '@/components/theme-provider'
 import { siteConfig } from '@/lib/site-config'
 import './globals.css'
@@ -76,6 +77,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
         </ThemeProvider>
+        <BnToque />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

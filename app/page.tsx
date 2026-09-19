@@ -2,6 +2,7 @@ import { IntroSplash } from "@/components/intro-splash"
 import { SiteNavbar } from "@/components/site-navbar"
 import { FeaturedStrip } from "@/components/featured-strip"
 import { CategoryGrid } from "@/components/category-grid"
+import { VideoSection } from "@/components/video-section"
 import { ContactForm } from "@/components/contact-form"
 import { SiteFooter } from "@/components/site-footer"
 
@@ -35,6 +36,8 @@ export default function Home() {
       <FeaturedStrip />
 
       <CategoryGrid />
+
+      <VideoSection />
 
       <ContactForm />
 

@@ -20,12 +20,32 @@
   animation: pulse-soft 3s ease-in-out infinite;
 }
 
-/* Las fotos son blanco y negro y pasan a color al poner el mouse encima. En pantallas táctiles no
-   existe "poner el mouse encima": ahí se ven a color desde el principio. */
-@media (hover: none) {
-  .bn-con-mouse {
-    filter: none !important;
+/* Efecto blanco y negro → color, igual en todos los dispositivos:
+     · PC: al poner el mouse encima.
+     · Tablet y celular (no existe "mouse encima"): al tocar la foto; queda a color hasta que se toque
+       otra cosa (lo marca components/bn-toque.tsx con el atributo data-tocado).
+     · Teclado: al enfocar la foto.
+   Vive aquí y no en clases de Tailwind porque Tailwind 4 solo aplica group-hover en dispositivos con
+   mouse. Las fotos con este efecto llevan la clase `bn-con-mouse` y su contenedor la clase `group`. */
+.bn-con-mouse {
+  filter: grayscale(1);
+}
+
+@media (hover: hover) {
+  .group:hover .bn-con-mouse {
+    filter: grayscale(0);
   }
+}
+
+.group:active .bn-con-mouse,
+.group[data-tocado] .bn-con-mouse,
+.group:focus-visible .bn-con-mouse {
+  filter: grayscale(0);
+}
+
+/* Aparte a propósito: un navegador antiguo que no entienda :has() descartaría toda la regla en la que vaya. */
+.group:has(:focus-visible) .bn-con-mouse {
+  filter: grayscale(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

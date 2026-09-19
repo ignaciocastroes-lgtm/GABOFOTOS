@@ -30,7 +30,8 @@ Orden recomendado: **Supabase → Vercel → probar → dominio → ficha PDF**.
 1. En [supabase.com](https://supabase.com) → **New project**. Nombre: `gabofotos`. Región: **South America (São Paulo)**.
    Guarda la contraseña de la base de datos donde no se pierda (no se usa en el sitio, pero la pide Supabase).
 2. Cuando termine de crearse: **SQL Editor → New query**, pega el contenido de `supabase/schema.sql` y pulsa **Run**.
-   Crea la tabla `fotos` y el bucket público `fotos`.
+   Crea la tabla `fotos`, el bucket público `fotos` y la tabla `videos`.
+   - Si tu Supabase ya estaba creado antes de agregar los videos, corre **solo el bloque «VIDEOS»** del final del archivo (es seguro repetirlo).
    - Si la parte del bucket da error, créalo a mano: **Storage → New bucket** → nombre `fotos` → marca **Public bucket**.
 3. Copia dos datos, los necesitas en el paso siguiente:
    - **Project URL**: Settings → API (o "Data API").
@@ -66,6 +67,8 @@ Abre la dirección de Preview que da Vercel y revisa, en el celular y en el comp
 - [ ] En menos de un minuto la foto aparece en el sitio (Social y carrusel).
 - [ ] Probarla con **Ocultar** y con **Eliminar**: desaparece del sitio.
 - [ ] En **Colegios** el panel exige marcar la autorización antes de subir.
+- [ ] En el celular y en la tablet las fotos se ven en blanco y negro y **pasan a color al tocarlas**; en el PC, al pasar el mouse.
+- [ ] En `/admin` → pestaña **Videos**: pegar un enlace de YouTube, ponerle título y agregarlo. En menos de un minuto aparece la sección «Videos» en el inicio; al tocar la tarjeta se abre el video y el botón verde abre WhatsApp con el mensaje escrito.
 
 Si todo está bien: en GitHub haz *merge* de la rama a `main`. Vercel publica en producción.
 
@@ -98,6 +101,10 @@ Si todo está bien: en GitHub haz *merge* de la rama a `main`. Vercel publica en
 3. Ordenar con las flechas, ocultar con el ojo, describir cada foto y eliminar con el tacho.
 4. Los cambios se ven en el sitio en menos de un minuto.
 
+Videos: en `/admin` → pestaña **Videos** se pega el enlace de YouTube (botón *Compartir* del video), se le pone un título y se
+agrega. Se pueden reordenar, ocultar, cambiar de enlace y eliminar (eliminar solo lo quita del sitio, no borra el video de YouTube).
+El sitio muestra hasta 3 videos.
+
 Reglas: fotos de niños y colegios solo con autorización del colegio o los apoderados; nada de listas con nombres completos.
 
 ## 8. Si algo falla
@@ -109,6 +116,8 @@ Reglas: fotos de niños y colegios solo con autorización del colegio o los apod
 | Al subir una foto: "Faltan SUPABASE_URL…" | Faltan las variables de Supabase | Revisar paso 3 y volver a desplegar |
 | Al subir una foto: error de Storage o bucket | El bucket `fotos` no existe | Crearlo como público (paso 2) |
 | La foto sube pero no se ve en el sitio | Caché de un minuto, o la foto está oculta | Esperar 1 minuto; revisar el ojo de la foto |
+| La sección «Videos» no aparece | No hay videos cargados/visibles, o falta correr el bloque «VIDEOS» de `schema.sql` en Supabase | Revisar `/admin` → Videos; correr el SQL si el panel da error |
+| «Ese enlace no parece de YouTube» al agregar un video | Se pegó otro tipo de enlace | Copiar el enlace desde el botón *Compartir* del video (`youtu.be/…` o `youtube.com/watch?v=…`) |
 | Solo se ven las fotos de ejemplo | Supabase sin configurar, o no hay fotos visibles en esa categoría | Revisar variables y subir fotos |
 | "Demasiados intentos" al entrar | 5 contraseñas malas seguidas | Esperar 10 minutos |
 | Se cerró la sesión de todos | Se cambió `ADMIN_SESSION_SECRET` o la contraseña | Es lo esperado: volver a entrar |

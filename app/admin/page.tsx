@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { AdminPanel } from "@/components/admin/admin-panel"
 
 export const metadata: Metadata = {
-  title: "Administrar fotos",
+  title: "Administrar el sitio",
   robots: { index: false, follow: false },
 }
 

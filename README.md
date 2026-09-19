@@ -15,6 +15,7 @@ Se despliega en Vercel; las fotos que sube Gabo viven en Supabase.
 - **Formulario de contacto** que no envía datos a ningún servidor: arma el mensaje y abre WhatsApp con él escrito.
 - **Perfil profesional «Gabo & Planes»**: trayectoria, servicios, cuadros de graduación con marco y galería «Gabo en acción» (blanco y negro; al tocar una foto pasa a color y ofrece consultar por WhatsApp o Instagram).
 - **Panel `/admin`** para subir, ordenar, ocultar, describir y eliminar fotos, sin tocar código.
+- **Videos:** sección «Videos» con hasta 3 videos de YouTube. Cada uno abre una ventana con el video y un botón para cotizar por WhatsApp. Se cargan desde `/admin` → pestaña **Videos**, pegando el enlace de YouTube (sin videos cargados, la sección no aparece).
 - **Buscadores y redes:** metadatos, imagen para compartir (`public/og.jpg`), datos estructurados JSON-LD, `sitemap.xml`, `robots.txt` y `manifest`.
 - **Íconos:** `favicon.ico`, `icon.svg`, `apple-icon.png` e íconos de 192 y 512 px (uno «maskable»), dibujados desde el logo (`public/images/gabofotos-logo.jpg`).
 - **Ficha técnica en PDF** opcional (ver más abajo).
@@ -51,6 +52,7 @@ proxy.ts              primera barrera de /admin y /api/admin
 | Textos de «Gabo & Planes» (biografía, trayectoria, servicios) | `components/about-plans-modal.tsx` |
 | Opciones del formulario de contacto | `components/contact-form.tsx` |
 | Panel de fotos | `components/admin/admin-panel.tsx`, `app/api/admin/`, `lib/admin-auth.ts` |
+| Videos de YouTube (sección, ventana y panel) | `components/video-section.tsx`, `components/video-tunnel.tsx`, `components/admin/videos-panel.tsx`, `lib/videos.ts` (`MAX_VIDEOS` = cuántos se muestran) |
 | Metadatos, título y datos para buscadores | `app/layout.tsx` |
 
 ## Galerías: de dónde salen las fotos
@@ -64,8 +66,10 @@ Cada categoría muestra, en este orden:
 La ruta pública es `app/api/galeria/[categoria]/route.ts` y la lógica está en `lib/gallery-data.ts`.
 Los cambios del panel se ven en el sitio en menos de un minuto. Si solo se usa el panel, no hace falta definir `FLICKR_API_KEY`.
 
-**Color:** las fotos se muestran en blanco y negro y pasan a color al poner el mouse encima. En pantallas táctiles no existe
-el mouse, así que ahí se ven a color desde el principio (regla `.bn-con-mouse` en `app/globals.css`).
+**Color:** las fotos se muestran en blanco y negro y pasan a color igual en todos los dispositivos: en PC al poner el mouse
+encima; en tablet y celular al tocarlas (quedan a color hasta que se toca otra cosa). Las reglas están en `app/globals.css`
+(`.bn-con-mouse`) y el toque lo marca `components/bn-toque.tsx`. Una foto nueva con este efecto necesita la clase
+`bn-con-mouse` en la imagen y la clase `group` en su contenedor.
 
 ## Panel de fotos (`/admin`)
 
@@ -87,7 +91,8 @@ Gabo entra con su contraseña y puede **subir varias fotos a la vez** (desde el 
 ### Puesta en marcha (una sola vez)
 
 1. Crear un proyecto en [supabase.com](https://supabase.com), **propio de GABOFOTOS**.
-2. En su SQL Editor, correr `supabase/schema.sql` (crea la tabla `fotos` y el bucket público `fotos`).
+2. En su SQL Editor, correr `supabase/schema.sql` (crea la tabla `fotos`, el bucket público `fotos` y la tabla `videos`).
+   Si el proyecto de Supabase ya existía antes de los videos, basta correr el bloque «VIDEOS» del final del archivo.
 3. Cargar las variables de entorno en Vercel y volver a desplegar.
 4. Entrar a `/admin`, subir una foto de prueba y confirmar que aparece en el sitio.
 

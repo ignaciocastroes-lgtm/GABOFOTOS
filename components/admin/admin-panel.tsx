@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, Eye, EyeOff, Loader2, LogOut, Trash2, Upload } from "lucide-react"
+import { api } from "./api"
+import { VideosPanel } from "./videos-panel"
 
 type CategoriaId = "social" | "colegios" | "retratos" | "deporte"
 
@@ -57,17 +59,6 @@ async function comprimir(archivo: File): Promise<Blob> {
   if (!blob || blob.type !== "image/webp") blob = await aBlob("image/jpeg", 0.86)
   if (!blob) throw new Error("No se pudo preparar la foto.")
   return blob
-}
-
-async function api<T>(ruta: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(ruta, init)
-  const data = await res.json().catch(() => ({}))
-  if (res.status === 401) {
-    window.location.assign("/admin/login")
-    throw new Error("La sesión venció. Vuelve a entrar.")
-  }
-  if (!res.ok) throw new Error((data as { error?: string }).error ?? "Algo salió mal.")
-  return data as T
 }
 
 function ordenar(fotos: Foto[]) {
@@ -309,6 +300,7 @@ export function AdminPanel() {
   const [error, setError] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [vista, setVista] = useState<CategoriaId>("social")
+  const [seccion, setSeccion] = useState<"fotos" | "videos">("fotos")
 
   const cargar = useCallback(async () => {
     setError(null)
@@ -394,7 +386,7 @@ export function AdminPanel() {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-light tracking-wide">Administrar fotos</h1>
+          <h1 className="text-2xl font-light tracking-wide">Administrar el sitio</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
             Los cambios aparecen en el sitio en menos de un minuto.
           </p>
@@ -409,72 +401,99 @@ export function AdminPanel() {
         </div>
       </header>
 
-      <div className="mt-6">
-        <SubirFotos onSubidas={cargar} />
+      <div role="tablist" aria-label="Secciones del panel" className="mt-6 flex gap-2 border-b border-slate-200 pb-4 dark:border-zinc-800">
+        {(["fotos", "videos"] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={seccion === id}
+            onClick={() => setSeccion(id)}
+            className={`rounded-full px-5 py-2 text-sm transition-colors ${
+              seccion === id
+                ? "bg-zinc-900 font-medium text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950"
+                : "text-slate-600 ring-1 ring-slate-300 hover:ring-yellow-500 dark:text-zinc-300 dark:ring-zinc-700"
+            }`}
+          >
+            {id === "fotos" ? "Fotos" : "Videos"}
+          </button>
+        ))}
       </div>
 
-      <section className="mt-8">
-        <div role="tablist" aria-label="Categorías" className="flex flex-wrap gap-2">
-          {CATEGORIAS.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={vista === c.id}
-              onClick={() => setVista(c.id)}
-              className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                vista === c.id
-                  ? "bg-yellow-400 font-medium text-zinc-950"
-                  : "bg-white text-slate-700 ring-1 ring-slate-300 hover:ring-yellow-500 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-800"
-              }`}
-            >
-              {c.nombre} ({conteo(c.id)})
-            </button>
-          ))}
+      {seccion === "videos" ? (
+        <div className="mt-6">
+          <VideosPanel />
         </div>
+      ) : (
+        <>
+          <div className="mt-6">
+            <SubirFotos onSubidas={cargar} />
+          </div>
 
-        {aviso && (
-          <p role="status" className="mt-4 flex items-center gap-1.5 text-sm text-green-500">
-            <Check className="h-4 w-4" /> {aviso}
-          </p>
-        )}
-        {error && (
-          <p role="alert" className="mt-4 flex items-start gap-1.5 text-sm text-red-400">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> {error}
-          </p>
-        )}
+          <section className="mt-8">
+            <div role="tablist" aria-label="Categorías" className="flex flex-wrap gap-2">
+              {CATEGORIAS.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={vista === c.id}
+                  onClick={() => setVista(c.id)}
+                  className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                    vista === c.id
+                      ? "bg-yellow-400 font-medium text-zinc-950"
+                      : "bg-white text-slate-700 ring-1 ring-slate-300 hover:ring-yellow-500 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-800"
+                  }`}
+                >
+                  {c.nombre} ({conteo(c.id)})
+                </button>
+              ))}
+            </div>
 
-        {cargando ? (
-          <p className="mt-8 flex items-center gap-2 text-sm text-slate-500">
-            <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
-          </p>
-        ) : lista.length === 0 ? (
-          <p className="mt-8 text-sm text-slate-500 dark:text-zinc-400">
-            No hay fotos subidas en esta categoría. Mientras tanto, el sitio muestra las fotos de ejemplo.
-          </p>
-        ) : (
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {lista.map((f, i) => (
-              <TarjetaFoto
-                key={f.id}
-                foto={f}
-                primera={i === 0}
-                ultima={i === lista.length - 1}
-                onMover={(dir) => mover(f.id, dir)}
-                onAlt={(alt) => accion(async () => { await patch(f.id, { alt }); cambiar(f.id, { alt }) }, "Descripción guardada.")}
-                onVisible={() =>
-                  accion(async () => {
-                    await patch(f.id, { visible: !f.visible })
-                    cambiar(f.id, { visible: !f.visible })
-                  }, f.visible ? "Foto oculta del sitio." : "Foto visible en el sitio.")
-                }
-                onCategoria={(c) => moverACategoria(f, c)}
-                onEliminar={() => eliminar(f)}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
+            {aviso && (
+              <p role="status" className="mt-4 flex items-center gap-1.5 text-sm text-green-500">
+                <Check className="h-4 w-4" /> {aviso}
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="mt-4 flex items-start gap-1.5 text-sm text-red-400">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> {error}
+              </p>
+            )}
+
+            {cargando ? (
+              <p className="mt-8 flex items-center gap-2 text-sm text-slate-500">
+                <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
+              </p>
+            ) : lista.length === 0 ? (
+              <p className="mt-8 text-sm text-slate-500 dark:text-zinc-400">
+                No hay fotos subidas en esta categoría. Mientras tanto, el sitio muestra las fotos de ejemplo.
+              </p>
+            ) : (
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {lista.map((f, i) => (
+                  <TarjetaFoto
+                    key={f.id}
+                    foto={f}
+                    primera={i === 0}
+                    ultima={i === lista.length - 1}
+                    onMover={(dir) => mover(f.id, dir)}
+                    onAlt={(alt) => accion(async () => { await patch(f.id, { alt }); cambiar(f.id, { alt }) }, "Descripción guardada.")}
+                    onVisible={() =>
+                      accion(async () => {
+                        await patch(f.id, { visible: !f.visible })
+                        cambiar(f.id, { visible: !f.visible })
+                      }, f.visible ? "Foto oculta del sitio." : "Foto visible en el sitio.")
+                    }
+                    onCategoria={(c) => moverACategoria(f, c)}
+                    onEliminar={() => eliminar(f)}
+                  />
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      )}
     </div>
   )
 }

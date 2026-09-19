@@ -38,7 +38,7 @@ export function CategoryGrid() {
                   fill
                   sizes="(min-width: 768px) 33vw, 100vw"
                   style={{ objectPosition: category.coverPosition }}
-                  className="object-cover opacity-70 grayscale bn-con-mouse transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0"
+                  className="object-cover opacity-70 bn-con-mouse transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-90"
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 via-zinc-800 to-zinc-900" />

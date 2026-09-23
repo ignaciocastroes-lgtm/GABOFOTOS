@@ -7,7 +7,7 @@
 
 create table if not exists fotos (
   id uuid primary key default gen_random_uuid(),
-  categoria text not null check (categoria in ('social', 'colegios', 'retratos', 'deporte')),
+  categoria text not null check (categoria in ('matrimonios', 'colegios', 'cumpleanos', 'deporte')),
   -- Ruta del archivo dentro del bucket "fotos", ej. social/3f2a...webp
   path text not null unique,
   ancho int not null check (ancho > 0),
@@ -71,6 +71,21 @@ create table if not exists plan_imagenes (
 );
 
 alter table plan_imagenes enable row level security;
+
+-- ============================================================
+-- CATEGORÍAS 2026-09-23 — Social/Retratos pasaron a ser Matrimonios/Cumpleaños
+--
+-- Solo hace falta correr esto si ya habías corrido schema.sql ANTES de este cambio (si es la
+-- primera vez que instalas todo, el create table de arriba ya quedó con las categorías nuevas y
+-- este bloque no hace nada). Es seguro correrlo más de una vez.
+-- ============================================================
+
+-- Si ya habías subido fotos a Social o Retratos, quedan en la categoría más parecida.
+update fotos set categoria = 'matrimonios' where categoria = 'social';
+update fotos set categoria = 'cumpleanos' where categoria = 'retratos';
+
+alter table fotos drop constraint if exists fotos_categoria_check;
+alter table fotos add constraint fotos_categoria_check check (categoria in ('matrimonios', 'colegios', 'cumpleanos', 'deporte'));
 
 -- ── Verificación (opcional) ─────────────────────────────────
 -- Después de correr todo, estas consultas deberían devolver:

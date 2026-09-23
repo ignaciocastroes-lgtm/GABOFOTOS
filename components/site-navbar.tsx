@@ -6,12 +6,13 @@ import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
 import type { PlanImagenes } from "@/lib/planes"
 import { ConoceGabrielModal } from "./conoce-gabriel-modal"
+import { LogoSecreto } from "./logo-secreto"
 import { PresupuestosModal } from "./presupuestos-modal"
 
 const categoryLinks = [
-  { href: "#social", label: "SOCIAL" },
+  { href: "#matrimonios", label: "MATRIMONIOS" },
   { href: "#colegios", label: "COLEGIOS" },
-  { href: "#retratos", label: "RETRATOS" },
+  { href: "#cumpleanos", label: "CUMPLEAÑOS" },
   { href: "#deporte", label: "DEPORTE" },
 ]
 
@@ -51,28 +52,30 @@ export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md transition-colors duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <a href="#" className="flex items-center gap-3">
-            {/* Logo dinámico según el tema: negro en modo día, blanco en modo noche */}
-            <span className="relative block h-11 w-11">
-              <Image
-                src="/images/gabofotos-logo-black.jpg"
-                alt="GABOFOTOS"
-                width={44}
-                height={44}
-                className="h-11 w-11 rounded-sm object-contain dark:hidden"
-              />
-              <Image
-                src="/images/gabofotos-logo.jpg"
-                alt="GABOFOTOS"
-                width={44}
-                height={44}
-                className="hidden h-11 w-11 rounded-sm object-contain dark:block"
-              />
-            </span>
-            <span className="font-sans text-sm font-light tracking-[0.35em] text-slate-900 transition-colors duration-300 dark:text-zinc-100">
-              GABOFOTOS
-            </span>
-          </a>
+          <LogoSecreto>
+            <a href="#" className="flex items-center gap-3">
+              {/* Logo dinámico según el tema: negro en modo día, blanco en modo noche */}
+              <span className="relative block h-11 w-11">
+                <Image
+                  src="/images/gabofotos-logo-black.jpg"
+                  alt="GABOFOTOS"
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-sm object-contain dark:hidden"
+                />
+                <Image
+                  src="/images/gabofotos-logo.jpg"
+                  alt="GABOFOTOS"
+                  width={44}
+                  height={44}
+                  className="hidden h-11 w-11 rounded-sm object-contain dark:block"
+                />
+              </span>
+              <span className="font-sans text-sm font-light tracking-[0.35em] text-slate-900 transition-colors duration-300 dark:text-zinc-100">
+                GABOFOTOS
+              </span>
+            </a>
+          </LogoSecreto>
 
           <div className="flex items-center gap-4 sm:gap-6">
             <nav className="hidden items-center gap-6 text-xs tracking-[0.2em] text-slate-500 xl:flex dark:text-zinc-400">

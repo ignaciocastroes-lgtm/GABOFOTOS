@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "GABOFOTOS",
     short_name: "GABOFOTOS",
-    description: "Fotografía profesional de matrimonios, colegios, retratos y deporte en Santiago, Chile.",
+    description: "Fotografía profesional de matrimonios, colegios, cumpleaños y deporte en Santiago, Chile.",
     lang: "es-CL",
     start_url: "/",
     display: "standalone",

@@ -74,6 +74,9 @@ export function ContactoBloque({ mensaje }: { mensaje?: string }) {
         <a href={social.flickr.url} target="_blank" rel="noopener noreferrer" className={redClass}>
           {social.flickr.label}
         </a>
+        <a href={social.youtube.url} target="_blank" rel="noopener noreferrer" className={redClass}>
+          {social.youtube.label}
+        </a>
       </div>
 
       {BROCHURE_URL && (

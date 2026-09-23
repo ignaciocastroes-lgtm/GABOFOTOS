@@ -11,7 +11,7 @@ Se despliega en Vercel; las fotos que sube Gabo viven en Supabase.
 
 ## Qué incluye
 
-- **Portada** con logo de entrada, botón «Cotiza tu evento», carrusel de trabajos y cuatro categorías (Social, Colegios, Retratos, Deporte), cada una con su galería.
+- **Portada** con logo de entrada, botón «Cotiza tu evento», carrusel de trabajos y las 4 categorías principales de Gabo (Matrimonios, Colegios, Cumpleaños, Deporte), cada una con su galería.
 - **Formulario de contacto** que no envía datos a ningún servidor: arma el mensaje y abre WhatsApp con él escrito.
 - **«Conoce a Gabriel»** (menú superior): su historia (tomada de su brochure), formación y equipo, trabajo con empresas (foto de productos, fotografía profesional y comercial, iluminación), galería «Gabo en acción» (blanco y negro; al tocar una foto pasa a color y ofrece consultar por WhatsApp o Instagram), contacto y descarga del brochure.
 - **«Presupuestos y contacto»** (menú superior): los servicios (matrimonios, colegios, cuadros de graduación con marco —también vende las fotos en digital—, sesiones, empresas, bautizos y otros eventos), cada uno con una imagen y su botón para cotizar por WhatsApp, más los datos de contacto. Las imágenes se cambian desde `/admin` → pestaña **Presupuestos**.
@@ -20,6 +20,7 @@ Se despliega en Vercel; las fotos que sube Gabo viven en Supabase.
 - **Buscadores y redes:** metadatos, imagen para compartir (`public/og.jpg`), datos estructurados JSON-LD, `sitemap.xml`, `robots.txt` y `manifest`.
 - **Íconos:** `favicon.ico`, `icon.svg`, `apple-icon.png` e íconos de 192 y 512 px (uno «maskable»), dibujados desde el logo (`public/images/gabofotos-logo.jpg`).
 - **Brochure en PDF** descargable desde el pie de página y desde «Conoce a Gabriel» (ver más abajo).
+- **Toca 3 veces el logo GABOFOTOS** (en el menú o dentro de «Conoce a Gabriel») para ver la tarjeta de contacto de Gabo en grande.
 
 ## Correr en local
 
@@ -129,11 +130,22 @@ Se cargan en Vercel (Settings → Environment Variables, en Production y Preview
 - **Menores de edad:** sus rostros se publican solo con autorización del colegio o los apoderados. Nada de listas con nombres
   completos: los afiches de licenciatura y egreso usan nombres de ejemplo.
 
-## Álbumes de Flickr por título (opcional)
+## Álbumes de Flickr
 
-En `lib/gallery.ts`, un álbum puede indicarse solo con su `title`. Para que aparezca en el sitio, crea en Flickr un álbum
-público con ese nombre exacto: **Colegios** (el más importante), **Hockey**, **Eventos**, **Nacimientos** y **Cuadros**
-(de graduación); opcionales: **Licenciaturas** y **Galas**. Se actualizan solos (caché de una hora).
+`lib/gallery.ts` dice qué álbumes de Flickr alimentan cada categoría de la portada (Matrimonios,
+Colegios, Cumpleaños, Deporte). Revisado el 23-sep-2026 contra la cuenta real de Gabo
+(`https://www.flickr.com/photos/gcabezasplop/albums`), después de que él terminó de reorganizarla:
+los 4 álbumes existen con esos nombres exactos, incluido **Colegios** (19 fotos), que antes no
+tenía álbum propio. El resto de sus álbumes (Retrato, Modelos, Familia, Arquitectura, Arte, Modas,
+Publicitario, Restauraciones, Grifo, Paisaje, Aves, Flores, Pool, una exhibición de 2009) son su
+archivo personal y, a pedido suyo, no aparecen en el sitio.
+
+Si Gabo reorganiza de nuevo sus álbumes de Flickr (los renombra, crea uno nuevo, etc.), hay que
+volver a revisar esa página y actualizar `lib/gallery.ts` a mano: los álbumes indicados por `id`
+no se actualizan solos.
+
+Un álbum también puede indicarse solo con su `title` (sin `id`): el sitio lo busca en Flickr por ese nombre exacto, sin
+importar mayúsculas ni tildes, así que crear en Flickr un álbum con ese nombre basta para que aparezca sin tocar código.
 
 ## Brochure (PDF)
 

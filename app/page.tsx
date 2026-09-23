@@ -26,8 +26,9 @@ export default async function Home() {
           Momentos capturados con luz, sombra y silencio.
         </h1>
         <p className="max-w-xl text-pretty leading-relaxed text-slate-600 dark:text-zinc-400">
-          Bienvenido a GABOFOTOS. Explora las categorías del estudio y encuentra
-          el servicio perfecto para tu historia.
+          Gabriel Cabezas Salgado, fotógrafo profesional en Santiago: matrimonios, colegios,
+          cumpleaños, deporte y fotografía para empresas. Explora las categorías y cotiza por
+          WhatsApp.
         </p>
         <a
           href="#contacto"

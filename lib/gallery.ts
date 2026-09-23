@@ -6,6 +6,16 @@
 //  - solo con `title`: el sitio lo busca en Flickr por ese nombre exacto (sin importar
 //    mayúsculas ni tildes). Crear en Flickr un álbum con ese nombre basta para que aparezca,
 //    sin tocar código.
+//
+// Revisado el 23-sep-2026 contra los álbumes reales de Flickr. Gabo terminó de reorganizar su
+// cuenta y pidió que la portada muestre exactamente 4 categorías, sus 4 trabajos principales:
+// Matrimonios, Colegios, Cumpleaños y Deporte (antes eran Social, Colegios, Retratos y Deporte).
+// Ya no queda ningún álbum por título que no exista: los 4 álbumes de abajo están confirmados,
+// con sus ids reales, incluido Colegios, que antes no tenía álbum y ahora sí (19 fotos).
+// El resto de los álbumes de Gabo en Flickr (Retrato, Modelos, Familia, Arquitectura, Arte,
+// Modas, Publicitario, Restauraciones, Grifo, Paisaje, Aves, Flores, Pool, la exhibición de "Un
+// techo para Chile") son su archivo personal o de portafolio y, a pedido de Gabo, no van en la
+// portada: no se usan en ninguna categoría de este archivo.
 
 export type GalleryPhoto = {
   id: string
@@ -21,7 +31,7 @@ export type GalleryPhoto = {
   remote?: boolean
 }
 
-export type GalleryCategoryId = "social" | "colegios" | "retratos" | "deporte"
+export type GalleryCategoryId = "matrimonios" | "colegios" | "cumpleanos" | "deporte"
 
 export type GalleryCategory = {
   id: GalleryCategoryId
@@ -45,25 +55,20 @@ export type GalleryResponse = {
 
 export const galleryCategories: GalleryCategory[] = [
   {
-    id: "social",
-    title: "Social",
-    items: ["Matrimonios", "Cumpleaños", "Eventos"],
+    id: "matrimonios",
+    title: "Matrimonios",
+    items: ["Ceremonia", "Fiesta", "Sesión de novios"],
     cover: "/images/portfolio/social-matrimonio-playa.jpg",
     coverPosition: "50% 30%",
-    albums: [
-      { id: "72157625457217000", title: "Matrimonios" },
-      { id: "72157645358669889", title: "Cumpleaños" },
-      { title: "Eventos" },
-    ],
+    albums: [{ id: "72157625457217000", title: "Matrimonios" }],
     fallback: [
-      { id: "local-social-1", title: "Matrimonio en la playa", src: "/images/portfolio/social-matrimonio-playa.jpg", width: 1040, height: 1560 },
-      { id: "local-social-2", title: "Novios jugando en el sillón", src: "/images/portfolio/social-novios-sofa-juego.jpg", width: 1600, height: 1066 },
-      { id: "local-social-3", title: "Novios bailando de noche", src: "/images/portfolio/social-novios-noche.jpg", width: 1066, height: 1599 },
-      { id: "local-social-4", title: "Novios con sus amigos en el pasto", src: "/images/portfolio/social-novios-amigos-pasto.jpg", width: 1600, height: 1066 },
-      { id: "local-social-5", title: "Saxofonista en el banquete", src: "/images/portfolio/social-saxofonista.jpg", width: 1560, height: 1040 },
-      { id: "local-social-6", title: "Fiesta de gala", src: "/images/portfolio/social-fiesta-gala.jpg", width: 1599, height: 1066 },
-      { id: "local-social-7", title: "Novios en el sillón", src: "/images/portfolio/social-novios-sofa-beso.jpg", width: 1455, height: 970 },
-      { id: "local-social-8", title: "Mesa de novios", src: "/images/portfolio/social-mesa-novios.jpg", width: 1600, height: 1067 },
+      { id: "local-matrimonios-1", title: "Matrimonio en la playa", src: "/images/portfolio/social-matrimonio-playa.jpg", width: 1040, height: 1560 },
+      { id: "local-matrimonios-2", title: "Novios jugando en el sillón", src: "/images/portfolio/social-novios-sofa-juego.jpg", width: 1600, height: 1066 },
+      { id: "local-matrimonios-3", title: "Novios bailando de noche", src: "/images/portfolio/social-novios-noche.jpg", width: 1066, height: 1599 },
+      { id: "local-matrimonios-4", title: "Novios con sus amigos en el pasto", src: "/images/portfolio/social-novios-amigos-pasto.jpg", width: 1600, height: 1066 },
+      { id: "local-matrimonios-5", title: "Saxofonista en el banquete", src: "/images/portfolio/social-saxofonista.jpg", width: 1560, height: 1040 },
+      { id: "local-matrimonios-6", title: "Novios en el sillón", src: "/images/portfolio/social-novios-sofa-beso.jpg", width: 1455, height: 970 },
+      { id: "local-matrimonios-7", title: "Mesa de novios", src: "/images/portfolio/social-mesa-novios.jpg", width: 1600, height: 1067 },
     ],
   },
   {
@@ -72,12 +77,8 @@ export const galleryCategories: GalleryCategory[] = [
     items: ["Licenciaturas", "Egreso de octavo", "Cuadros de graduación", "Fotos de curso", "Galas"],
     cover: "/images/portfolio/retratos-portada.jpg",
     coverPosition: "50% 10%",
-    albums: [
-      { title: "Colegios" },
-      { title: "Licenciaturas" },
-      { title: "Galas" },
-      { title: "Cuadros" },
-    ],
+    // Antes no tenía álbum en Flickr; Gabo ya creó uno (19 fotos) al reorganizar su cuenta.
+    albums: [{ id: "72177720335758446", title: "Colegios" }],
     fallback: [
       { id: "local-colegios-1", title: "Licenciatura 4°B 2022", src: "/images/portfolio/colegios-licenciatura-cervellon-2022.jpg", width: 960, height: 1280 },
       { id: "local-colegios-2", title: "Egreso de octavo 2021", src: "/images/portfolio/colegios-egreso-8vo-rauli-2021.jpg", width: 1200, height: 1600 },
@@ -89,36 +90,25 @@ export const galleryCategories: GalleryCategory[] = [
     ],
   },
   {
-    id: "retratos",
-    title: "Retratos",
-    items: ["Nacimientos", "Familia", "Sesiones"],
-    cover: "/images/gabo/gabo-retrato-pareja.jpg",
-    coverPosition: "50% 30%",
-    albums: [
-      { id: "72157666463650568", title: "Retratos" },
-      { id: "72157621802433227", title: "Familia" },
-      { title: "Nacimientos" },
-    ],
+    id: "cumpleanos",
+    title: "Cumpleaños",
+    items: ["Infantiles", "Familiares", "Aniversarios"],
+    cover: "/images/portfolio/social-fiesta-gala.jpg",
+    coverPosition: "50% 40%",
+    albums: [{ id: "72157645358669889", title: "Cumpleaños" }],
     fallback: [
-      {
-        id: "local-retratos-1",
-        title: "Retrato de pareja en el jardín",
-        src: "/images/gabo/gabo-retrato-pareja.jpg",
-        width: 1280,
-        height: 1131,
-      },
+      { id: "local-cumpleanos-1", title: "Fiesta de gala", src: "/images/portfolio/social-fiesta-gala.jpg", width: 1599, height: 1066 },
     ],
   },
   {
     id: "deporte",
     title: "Deporte",
-    items: ["Fútbol", "Hockey"],
+    items: ["Fútbol", "Hockey", "Golf", "Motor"],
     cover: "/images/portfolio/deporte-futbol-terreno.jpg",
     coverPosition: "50% 40%",
     albums: [
-      { title: "Hockey" },
-      { id: "72157625457219402", title: "Fútbol Joven" },
-      { id: "72157652719900711", title: "Golf 2015" },
+      { id: "72157625457219402", title: "Deporte" },
+      { id: "72157652719900711", title: "Golf" },
       { id: "72157625489699452", title: "Rally Mobil" },
     ],
     fallback: [

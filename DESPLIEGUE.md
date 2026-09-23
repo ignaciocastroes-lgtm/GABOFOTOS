@@ -32,6 +32,7 @@ Orden recomendado: **Supabase → Vercel → probar → dominio → ficha PDF**.
 2. Cuando termine de crearse: **SQL Editor → New query**, pega el contenido de `supabase/schema.sql` y pulsa **Run**.
    Crea las tablas `fotos`, `videos` y `plan_imagenes`, y el bucket público `fotos`.
    - Si tu Supabase ya estaba creado antes, corre **solo desde el bloque «VIDEOS» hasta el final** del archivo (es seguro repetirlo).
+   - Si ya habías corrido `schema.sql` antes del 23-sep-2026, corre además el bloque **«CATEGORÍAS 2026-09-23»**: pasa las fotos que estaban en Social a Matrimonios y las que estaban en Retratos a Cumpleaños.
    - Si la parte del bucket da error, créalo a mano: **Storage → New bucket** → nombre `fotos` → marca **Public bucket**.
 3. Copia dos datos, los necesitas en el paso siguiente:
    - **Project URL**: Settings → API (o "Data API").
@@ -59,12 +60,13 @@ Una variable nueva no afecta a un despliegue que ya existe.
 Abre la dirección de Preview que da Vercel y revisa, en el celular y en el computador:
 
 - [ ] El inicio carga, el logo hace su efecto y aparece el carrusel.
-- [ ] Las cuatro categorías abren su galería y se cierran con la X.
+- [ ] Las cuatro categorías de la portada — **Matrimonios, Colegios, Cumpleaños, Deporte** — abren su galería y se cierran con la X;
+      los enlaces del menú de arriba llevan a cada una.
 - [ ] Formulario de contacto: elegir un trabajo, poner un nombre y pulsar **Enviar por WhatsApp** abre WhatsApp con el mensaje escrito.
 - [ ] La pestaña del navegador muestra el ícono de la cámara (si ves el viejo, recarga con Ctrl+F5).
 - [ ] `/admin` pide contraseña. Con una incorrecta dice "Contraseña incorrecta".
-- [ ] Entrando al panel: subir **una foto de prueba desde el celular** a Social. Aparece en la lista.
-- [ ] En menos de un minuto la foto aparece en el sitio (Social y carrusel).
+- [ ] Entrando al panel: subir **una foto de prueba desde el celular** a Matrimonios. Aparece en la lista.
+- [ ] En menos de un minuto la foto aparece en el sitio (Matrimonios y carrusel).
 - [ ] Probarla con **Ocultar** y con **Eliminar**: desaparece del sitio.
 - [ ] En **Colegios** el panel exige marcar la autorización antes de subir.
 - [ ] En el celular y en la tablet las fotos se ven en blanco y negro y **pasan a color al tocarlas**; en el PC, al pasar el mouse.

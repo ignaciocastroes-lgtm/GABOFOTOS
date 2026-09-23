@@ -7,12 +7,12 @@ import { comprimir } from "./imagen"
 import { PlanesPanel } from "./planes-panel"
 import { VideosPanel } from "./videos-panel"
 
-type CategoriaId = "social" | "colegios" | "retratos" | "deporte"
+type CategoriaId = "matrimonios" | "colegios" | "cumpleanos" | "deporte"
 
 const CATEGORIAS: { id: CategoriaId; nombre: string }[] = [
-  { id: "social", nombre: "Social" },
+  { id: "matrimonios", nombre: "Matrimonios" },
   { id: "colegios", nombre: "Colegios" },
-  { id: "retratos", nombre: "Retratos" },
+  { id: "cumpleanos", nombre: "Cumpleaños" },
   { id: "deporte", nombre: "Deporte" },
 ]
 
@@ -38,7 +38,7 @@ type Avance = { nombre: string; estado: Estado; error?: string }
 // ─────────────────────────────────────────────────────────────────────────
 
 function SubirFotos({ onSubidas }: { onSubidas: () => void }) {
-  const [categoria, setCategoria] = useState<CategoriaId>("social")
+  const [categoria, setCategoria] = useState<CategoriaId>("matrimonios")
   const [archivos, setArchivos] = useState<File[]>([])
   const [alt, setAlt] = useState("")
   const [autorizado, setAutorizado] = useState(false)
@@ -266,7 +266,7 @@ export function AdminPanel() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
-  const [vista, setVista] = useState<CategoriaId>("social")
+  const [vista, setVista] = useState<CategoriaId>("matrimonios")
   const [seccion, setSeccion] = useState<"fotos" | "videos" | "presupuestos">("fotos")
 
   const cargar = useCallback(async () => {

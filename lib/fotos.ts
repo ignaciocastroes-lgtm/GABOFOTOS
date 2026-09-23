@@ -1,6 +1,6 @@
 // Tipos y validaciones de las fotos administrables (tabla `fotos` de Supabase).
 
-export const CATEGORIAS_FOTO = ["social", "colegios", "retratos", "deporte"] as const
+export const CATEGORIAS_FOTO = ["matrimonios", "colegios", "cumpleanos", "deporte"] as const
 export type CategoriaFoto = (typeof CATEGORIAS_FOTO)[number]
 
 export type FotoDB = {

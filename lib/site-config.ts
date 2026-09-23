@@ -23,6 +23,7 @@ export const siteConfig = {
     instagramCorp: { handle: "@gabofotos_corp", url: "https://www.instagram.com/gabofotos_corp/" },
     facebook: { label: "GaboFotos", url: "https://www.facebook.com/GaboFotos-273963392727628/" },
     flickr: { label: "Flickr", url: "https://www.flickr.com/photos/gcabezasplop/" },
+    youtube: { label: "YouTube", url: "https://www.youtube.com/@gabofotos" },
   },
   flickr: {
     // NSID público de la cuenta gcabezasplop (se puede sobreescribir con FLICKR_USER_ID).

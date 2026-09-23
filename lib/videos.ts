@@ -29,7 +29,9 @@ export function esYoutubeId(valor: unknown): valor is string {
 /**
  * Saca el id de un enlace de YouTube. Acepta los formatos que se copian normalmente:
  *   https://www.youtube.com/watch?v=ID   https://youtu.be/ID   https://youtube.com/shorts/ID
- *   https://www.youtube.com/embed/ID     https://www.youtube.com/live/ID   (con o sin www., m. o https://)
+ *   https://www.youtube.com/embed/ID     https://www.youtube.com/live/ID
+ *   https://www.youtube.com/source/ID/shorts (el enlace que da "Compartir" en algunos Shorts)
+ *   (con o sin www., m. o https://)
  * Devuelve null si no es un enlace de YouTube con un id válido.
  * El id se guarda y se usa en el iframe, por eso siempre se valida con el patrón de 11 caracteres.
  */
@@ -54,7 +56,7 @@ export function extraerYoutubeId(entrada: string): string | null {
       id = url.searchParams.get("v")
     } else {
       const [, tipo, resto] = url.pathname.split("/")
-      if (["embed", "shorts", "live", "v"].includes(tipo)) id = resto ?? null
+      if (["embed", "shorts", "live", "v", "source"].includes(tipo)) id = resto ?? null
     }
   }
 

@@ -7,6 +7,7 @@ import { empresaPhotos } from "@/lib/pro-gallery"
 import { whatsappMessageLink } from "@/lib/site-config"
 import { COBERTURA, ContactoBloque } from "./contacto-bloque"
 import { WhatsAppIcon } from "./icons"
+import { LogoSecreto } from "./logo-secreto"
 import { ProGallery } from "./pro-gallery"
 import { SiteModal } from "./site-modal"
 
@@ -146,7 +147,7 @@ export function ConoceGabrielModal({ open, onClose, onPresupuestos }: Props) {
         {/* La marca */}
         <Seccion id="la-marca" titulo="GaboFotos, la marca">
           <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] md:gap-12">
-            <div className="relative aspect-square w-40 overflow-hidden rounded-xl ring-1 ring-zinc-800 md:w-full md:max-w-[14rem]">
+            <LogoSecreto className="relative block aspect-square w-40 overflow-hidden rounded-xl ring-1 ring-zinc-800 md:w-full md:max-w-[14rem]">
               <Image
                 src="/images/gabofotos-logo.jpg"
                 alt="Logo de GABOFOTOS"
@@ -154,7 +155,7 @@ export function ConoceGabrielModal({ open, onClose, onPresupuestos }: Props) {
                 sizes="(min-width: 768px) 14rem, 10rem"
                 className="object-cover"
               />
-            </div>
+            </LogoSecreto>
             <div className="max-w-prose space-y-4">
               <p className={parrafo}>
                 GaboFotos nace desde la necesidad de sentar las bases de lo que quería construir. La fotografía me

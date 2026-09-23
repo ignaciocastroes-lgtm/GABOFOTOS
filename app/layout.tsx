@@ -6,12 +6,13 @@ import { siteConfig } from '@/lib/site-config'
 import './globals.css'
 
 const description =
-  'Fotografía profesional de matrimonios, retratos, eventos escolares y deporte en Santiago, Chile. Cotiza por WhatsApp.'
+  'Fotografía profesional de matrimonios, colegios, cumpleaños y deporte en Santiago, Chile. Cotiza por WhatsApp.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: 'GABOFOTOS · Fotógrafo profesional en Santiago',
   description,
+  alternates: { canonical: siteConfig.url },
   openGraph: {
     title: 'GABOFOTOS · Fotógrafo profesional en Santiago',
     description,
@@ -37,7 +38,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Datos estructurados para buscadores: negocio, contacto y redes oficiales.
+// Datos estructurados para buscadores: negocio, contacto, servicios y redes oficiales.
+// https://schema.org/ProfessionalService — lo que Google usa para el panel de búsqueda local.
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
@@ -46,16 +48,33 @@ const jsonLd = {
   description,
   url: siteConfig.url,
   image: `${siteConfig.url}/og.jpg`,
+  logo: `${siteConfig.url}/icon-512.png`,
   telephone: siteConfig.phone.tel,
   email: siteConfig.email,
-  address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressCountry: 'CL' },
-  areaServed: 'Santiago, Chile',
+  address: { '@type': 'PostalAddress', addressLocality: 'Santiago', addressRegion: 'Región Metropolitana', addressCountry: 'CL' },
+  areaServed: [
+    { '@type': 'AdministrativeArea', name: 'Región Metropolitana, Chile' },
+    { '@type': 'Country', name: 'Chile' },
+  ],
+  knowsLanguage: 'es',
   sameAs: [
     siteConfig.social.instagram.url,
     siteConfig.social.instagramCorp.url,
     siteConfig.social.facebook.url,
     siteConfig.social.flickr.url,
+    siteConfig.social.youtube.url,
   ],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servicios de fotografía',
+    itemListElement: [
+      'Fotografía de matrimonios',
+      'Fotografía escolar: licenciaturas, galas y cuadros de graduación',
+      'Fotografía de cumpleaños',
+      'Fotografía deportiva',
+      'Fotografía para empresas: productos, comercial y profesional',
+    ].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+  },
 }
 
 export const viewport: Viewport = {

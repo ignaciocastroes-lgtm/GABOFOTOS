@@ -1,13 +1,17 @@
 import type { GalleryPhoto } from "./gallery"
 
-// Cliente mínimo de la API pública de Flickr (solo lectura, fotos públicas).
-// Docs: https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
-
-const ENDPOINT = "https://api.flickr.com/services/rest/"
-// De mayor a menor calidad disponible: l=1024px, c=800px, z=640px, m=500px
-const SIZE_ORDER = ["l", "c", "z", "m"] as const
-
-type FlickrApiPhoto = { id: string; title?: string } & Record<string, string | number | undefined>
+// Cliente del "feed" público de Flickr (RSS/JSON de toda la vida, sin api_key).
+// Se cambió a esto el 23-sep-2026: la API normal de Flickr (flickr.photosets.getPhotos, la que
+// usaba este archivo antes) pasó a exigir una cuenta Flickr Pro para conseguir una api_key, y la
+// cuenta de Gabo es Free. Este feed es un mecanismo más viejo y separado, pensado para que
+// cualquiera pueda "suscribirse" a un álbum público como si fuera un blog — no depende de si la
+// cuenta es Free o Pro, y no pide ninguna clave.
+// Doc (no oficial, Flickr ya no la mantiene, pero el feed sigue funcionando): busca
+// "flickr services feeds photoset.gne" — devuelve como mucho los últimos ítems del álbum (en la
+// práctica, unos 20), no el álbum completo si tiene más fotos. Para álbumes grandes (Matrimonios
+// tiene 107), el sitio muestra los ~20 más recientes en vez de los 107. Sigue siendo muchísimo
+// mejor que no mostrar ninguna foto real, y no cuesta nada.
+const FEED = "https://api.flickr.com/services/feeds/photoset.gne"
 
 export type FlickrAlbum = { id: string; title: string }
 
@@ -20,98 +24,102 @@ export function normalizeTitle(title: string): string {
     .toLowerCase()
 }
 
-/** Todos los álbumes públicos de la cuenta (id y título). */
-export async function fetchUserAlbums(apiKey: string, userId: string): Promise<FlickrAlbum[]> {
-  const params = new URLSearchParams({
-    method: "flickr.photosets.getList",
-    api_key: apiKey,
-    user_id: userId,
-    per_page: "500",
-    format: "json",
-    nojsoncallback: "1",
-  })
-
-  const response = await fetch(`${ENDPOINT}?${params}`, { next: { revalidate: 3600 } })
-  if (!response.ok) throw new Error(`Flickr respondió HTTP ${response.status}`)
-
-  const data = await response.json()
-  if (data.stat !== "ok") throw new Error(`Flickr error ${data.code}: ${data.message}`)
-
-  const list: { id: string; title?: { _content?: string } }[] = data.photosets?.photoset ?? []
-  return list.map((album) => ({ id: album.id, title: album.title?._content ?? "" }))
-}
-
 /**
- * Convierte los álbumes pedidos por una categoría en álbumes concretos de Flickr.
- * Los que traen `id` se usan tal cual; los que solo traen `title` se buscan por nombre.
- * Si un título no existe todavía en Flickr, simplemente se omite.
+ * Convierte los álbumes pedidos por una categoría en álbumes concretos: los que traen `id` se
+ * usan tal cual. (Antes también se podían pedir solo por `title` y el sitio los buscaba en la
+ * cuenta de Flickr, pero esa búsqueda usaba la API con clave; sin clave no hay forma de listar
+ * los álbumes de la cuenta, así que un álbum sin `id` simplemente se omite.)
  */
-export function resolveAlbums(
-  wanted: { id?: string; title: string }[],
-  available: FlickrAlbum[],
-): FlickrAlbum[] {
+export function resolveAlbums(wanted: { id?: string; title: string }[]): FlickrAlbum[] {
   const seen = new Set<string>()
   const result: FlickrAlbum[] = []
-
   for (const album of wanted) {
-    const id = album.id ?? available.find((a) => normalizeTitle(a.title) === normalizeTitle(album.title))?.id
-    if (id && !seen.has(id)) {
-      seen.add(id)
-      result.push({ id, title: album.title })
+    if (album.id && !seen.has(album.id)) {
+      seen.add(album.id)
+      result.push({ id: album.id, title: album.title })
     }
   }
   return result
 }
 
-export function toGalleryPhoto(photo: FlickrApiPhoto, owner: string): GalleryPhoto | null {
-  for (const size of SIZE_ORDER) {
-    const src = photo[`url_${size}`]
-    const width = Number(photo[`width_${size}`])
-    const height = Number(photo[`height_${size}`])
-    if (typeof src === "string" && width > 0 && height > 0) {
-      return {
-        id: photo.id,
-        title: photo.title ?? "",
-        src,
-        width,
-        height,
-        href: `https://www.flickr.com/photos/${owner}/${photo.id}`,
-        remote: true,
-      }
-    }
-  }
-  return null
+// Entidades HTML que aparecen en los títulos y descripciones del feed (viene en XML/RSS de origen).
+const ENTIDADES: Record<string, string> = {
+  "&amp;": "&",
+  "&quot;": '"',
+  "&#039;": "'",
+  "&apos;": "'",
+  "&lt;": "<",
+  "&gt;": ">",
 }
 
-export async function fetchAlbumPhotos(
-  albumId: string,
-  apiKey: string,
-  userId: string,
-  perPage = 24,
-): Promise<GalleryPhoto[]> {
-  const params = new URLSearchParams({
-    method: "flickr.photosets.getPhotos",
-    api_key: apiKey,
-    photoset_id: albumId,
-    user_id: userId,
-    extras: "url_c,url_l,url_z,url_m",
-    media: "photos",
-    per_page: String(perPage),
-    format: "json",
-    nojsoncallback: "1",
-  })
+function desescapar(texto: string): string {
+  return texto.replace(/&(?:amp|quot|#039|apos|lt|gt);/g, (m) => ENTIDADES[m] ?? m)
+}
 
-  const response = await fetch(`${ENDPOINT}?${params}`, { next: { revalidate: 3600 } })
+// El feed da una sola imagen ("_m", 240px de lado largo) por foto. Su nombre de archivo sigue el
+// patrón {servidor}/{id}_{secret}_m.jpg, y Flickr sirve el mismo archivo en otros tamaños con solo
+// cambiar el sufijo (documentado y estable desde hace más de una década):
+//   _q=150  _n=320  _z=640  _c=800  _b=1024 (si la foto original es así de grande)
+// Se usa _c (800px): calidad de sobra para la web y casi cualquier foto de cámara lo tiene.
+const SUFIJO_ORIGEN = "_m.jpg"
+const SUFIJO_DESTINO = "_c.jpg"
+const LADO_ORIGEN = 240 // el lado largo de "_m", fijo por definición del feed
+const LADO_DESTINO = 800
+
+type FeedItem = {
+  title?: string
+  link?: string
+  media?: { m?: string }
+  description?: string
+}
+
+/**
+ * Saca el ancho y alto reales de la foto. El feed no los da como campos propios, pero sí quedan
+ * escritos en el <img width="…" height="…"> que trae embebido en la descripción de cada ítem.
+ */
+function medidasDesdeDescripcion(descripcion: string | undefined): { width: number; height: number } | null {
+  const m = descripcion?.match(/width="(\d+)"\s+height="(\d+)"/)
+  if (!m) return null
+  const width = Number(m[1])
+  const height = Number(m[2])
+  return width > 0 && height > 0 ? { width, height } : null
+}
+
+function toGalleryPhoto(item: FeedItem): GalleryPhoto | null {
+  const srcOrigen = item.media?.m
+  if (!srcOrigen || !srcOrigen.includes(SUFIJO_ORIGEN)) return null
+
+  const idMatch = srcOrigen.match(/\/(\d+)_([0-9a-f]+)_m\.jpg$/)
+  if (!idMatch) return null
+  const [, id] = idMatch
+
+  const medidas = medidasDesdeDescripcion(item.description)
+  if (!medidas) return null
+
+  // Escala proporcional de 240px (lo que da el feed) a 800px (lo que se pide en su lugar).
+  const factor = LADO_DESTINO / LADO_ORIGEN
+  const width = Math.round(medidas.width * factor)
+  const height = Math.round(medidas.height * factor)
+
+  return {
+    id,
+    title: item.title ? desescapar(item.title) : "",
+    src: srcOrigen.replace(SUFIJO_ORIGEN, SUFIJO_DESTINO),
+    width,
+    height,
+    href: item.link,
+    remote: true,
+  }
+}
+
+export async function fetchAlbumPhotos(albumId: string, ownerNsid: string): Promise<GalleryPhoto[]> {
+  const params = new URLSearchParams({ nsid: ownerNsid, set: albumId, format: "json", nojsoncallback: "1" })
+  const response = await fetch(`${FEED}?${params}`, { next: { revalidate: 3600 } })
   if (!response.ok) throw new Error(`Flickr respondió HTTP ${response.status}`)
 
-  const data = await response.json()
-  if (data.stat !== "ok") throw new Error(`Flickr error ${data.code}: ${data.message}`)
-
-  const owner: string = data.photoset?.owner ?? userId
-  const photos: FlickrApiPhoto[] = data.photoset?.photo ?? []
-  return photos
-    .map((photo) => toGalleryPhoto(photo, owner))
-    .filter((photo): photo is GalleryPhoto => photo !== null)
+  const data = (await response.json()) as { items?: FeedItem[] }
+  const items = data.items ?? []
+  return items.map(toGalleryPhoto).filter((photo): photo is GalleryPhoto => photo !== null)
 }
 
 /** Mezcla varias listas alternando una foto de cada una, sin repetir ids. */

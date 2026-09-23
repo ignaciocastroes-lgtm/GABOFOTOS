@@ -1,11 +1,5 @@
 import type { GalleryCategory, GalleryPhoto, GalleryResponse } from "./gallery"
-import {
-  fetchAlbumPhotos,
-  fetchUserAlbums,
-  interleave,
-  resolveAlbums,
-  type FlickrAlbum,
-} from "./flickr"
+import { fetchAlbumPhotos, interleave, resolveAlbums } from "./flickr"
 import { listarFotos, urlPublica } from "./supabase-rest"
 import { siteConfig } from "./site-config"
 
@@ -34,39 +28,24 @@ async function cargarSubidas(categoria: GalleryCategory["id"]): Promise<GalleryP
 /**
  * Arma la galería de una categoría, de más a menos prioritaria:
  *   1. las fotos subidas desde /admin, en el orden que Gabo les dio;
- *   2. las de sus álbumes de Flickr (solo si hay FLICKR_API_KEY);
- *   3. si no hay ninguna de las dos, las fotos locales de respaldo.
+ *   2. las de sus álbumes de Flickr (el feed público, sin api_key — ver lib/flickr.ts);
+ *   3. si ninguna de las dos tiene nada, las fotos locales de respaldo.
  * Nunca lanza error: lo peor que pasa es mostrar el respaldo.
  */
 export async function loadCategoryGallery(category: GalleryCategory): Promise<GalleryResponse> {
-  const apiKey = process.env.FLICKR_API_KEY
   const userId = process.env.FLICKR_USER_ID || siteConfig.flickr.userId
 
   const subidas = await cargarSubidas(category.id)
 
-  // Sin API key solo se pueden enlazar los álbumes que ya tienen id.
-  let albums: FlickrAlbum[] = resolveAlbums(category.albums, [])
-  let deFlickr: GalleryPhoto[] = []
+  const albums = resolveAlbums(category.albums)
+  const results = await Promise.allSettled(albums.map((album) => fetchAlbumPhotos(album.id, userId)))
 
-  if (apiKey) {
-    // Los álbumes indicados solo por título se buscan entre los de la cuenta.
-    const available = await fetchUserAlbums(apiKey, userId).catch((error) => {
-      console.error("[flickr]", error)
-      return [] as FlickrAlbum[]
-    })
-    albums = resolveAlbums(category.albums, available)
-
-    const results = await Promise.allSettled(
-      albums.map((album) => fetchAlbumPhotos(album.id, apiKey, userId)),
-    )
-
-    const lists: GalleryPhoto[][] = []
-    for (const result of results) {
-      if (result.status === "fulfilled") lists.push(result.value)
-      else console.error("[flickr]", result.reason)
-    }
-    deFlickr = interleave(lists, MAX_FLICKR)
+  const lists: GalleryPhoto[][] = []
+  for (const result of results) {
+    if (result.status === "fulfilled") lists.push(result.value)
+    else console.error("[flickr]", result.reason)
   }
+  const deFlickr = interleave(lists, MAX_FLICKR)
 
   const remotas = [...subidas, ...deFlickr].slice(0, MAX_TOTAL)
   const source: GalleryResponse["source"] = remotas.length > 0 ? "remote" : "local"

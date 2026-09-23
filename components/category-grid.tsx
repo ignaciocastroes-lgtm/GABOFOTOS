@@ -1,14 +1,11 @@
 "use client"
 
-import { useCallback, useState } from "react"
 import Image from "next/image"
 import { galleryCategories } from "@/lib/gallery"
-import { GalleryModal } from "./gallery-modal"
+import { useGalleryModal } from "./gallery-modal-provider"
 
 export function CategoryGrid() {
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const activeCategory = galleryCategories.find((category) => category.id === activeId) ?? null
-  const handleClose = useCallback(() => setActiveId(null), [])
+  const { openCategory } = useGalleryModal()
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
@@ -27,7 +24,7 @@ export function CategoryGrid() {
             key={category.id}
             id={category.id}
             type="button"
-            onClick={() => setActiveId(category.id)}
+            onClick={() => openCategory(category.id)}
             className="group relative flex min-h-[26rem] scroll-mt-24 flex-col justify-end overflow-hidden rounded-lg bg-slate-200 text-left ring-1 ring-slate-300 transition-all duration-300 hover:ring-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:bg-zinc-900 dark:ring-zinc-800"
           >
             <div className="absolute inset-0">
@@ -61,14 +58,6 @@ export function CategoryGrid() {
           </button>
         ))}
       </div>
-
-      <GalleryModal
-        open={activeCategory !== null}
-        categoria={activeCategory?.id ?? null}
-        title={activeCategory?.title ?? ""}
-        subtitle={activeCategory?.items.join(" · ")}
-        onClose={handleClose}
-      />
     </section>
   )
 }

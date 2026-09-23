@@ -65,11 +65,24 @@ proxy.ts              primera barrera de /admin y /api/admin
 Cada categoría muestra, en este orden:
 
 1. **Las fotos que Gabo sube desde `/admin`** (Supabase), en el orden que él les dé.
-2. **Las de sus álbumes de Flickr**, solo si hay `FLICKR_API_KEY` (opcional).
-3. **Las fotos de ejemplo** de `public/images/portfolio/`, únicamente si no hay ninguna de las anteriores.
+2. **Las de sus álbumes de Flickr**, siempre, sin ninguna clave que configurar (ver más abajo).
+3. **Las fotos de ejemplo** de `public/images/portfolio/`, únicamente si las dos anteriores no tienen nada.
 
 La ruta pública es `app/api/galeria/[categoria]/route.ts` y la lógica está en `lib/gallery-data.ts`.
-Los cambios del panel se ven en el sitio en menos de un minuto. Si solo se usa el panel, no hace falta definir `FLICKR_API_KEY`.
+Los cambios del panel se ven en el sitio en menos de un minuto.
+
+### Flickr, sin API key
+
+Flickr cambió su política y ahora pedir una API key (la forma "oficial" de traer fotos) es exclusivo de
+cuentas Pro; la cuenta de Gabo es Free. En vez de eso, `lib/flickr.ts` usa el **feed público** de cada
+álbum (`api.flickr.com/services/feeds/photoset.gne`), un mecanismo más viejo y separado que no pide
+ninguna clave y no depende de si la cuenta es Free o Pro — cualquier álbum público se puede leer así.
+
+La única diferencia real: ese feed da como mucho las ~20 fotos más recientes de cada álbum, no el álbum
+completo. Para Colegios, Cumpleaños y Deporte (19, 9 y 24 fotos) prácticamente no se nota; para
+Matrimonios (107 fotos) el sitio muestra una selección de las más recientes en vez de las 107. Si en
+algún momento Gabo pasa a una cuenta Pro, se puede volver a la API completa (con paginación real);
+mientras tanto, esto no cuesta nada y ya trae fotos reales.
 
 **Color:** las fotos se muestran en blanco y negro y pasan a color igual en todos los dispositivos: en PC al poner el mouse
 encima; en tablet y celular al tocarlas (quedan a color hasta que se toca otra cosa). Las reglas están en `app/globals.css`
@@ -115,8 +128,7 @@ Se cargan en Vercel (Settings → Environment Variables, en Production y Preview
 | `ADMIN_PASSWORD` | Sí, para el panel | Contraseña de Gabo para `/admin` |
 | `ADMIN_SESSION_SECRET` | Recomendada | Texto largo y al azar para firmar sesiones |
 | `NEXT_PUBLIC_SITE_URL` | Recomendada | Dominio final, `https://www.gabofotos.cl` (sin barra final) |
-| `FLICKR_API_KEY` | Opcional | Suma las fotos de sus álbumes de Flickr |
-| `FLICKR_USER_ID` | No | Solo si cambia la cuenta (por defecto `40717141@N04`) |
+| `FLICKR_USER_ID` | No | Solo si cambia la cuenta de Flickr (por defecto `40717141@N04`). No hace falta ninguna API key — ver «Flickr, sin API key» más arriba |
 
 ## Reglas del sitio
 

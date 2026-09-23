@@ -3,6 +3,7 @@ import { SiteNavbar } from "@/components/site-navbar"
 import { cargarImagenesPlanes } from "@/lib/planes-data"
 import { FeaturedStrip } from "@/components/featured-strip"
 import { CategoryGrid } from "@/components/category-grid"
+import { GalleryModalProvider } from "@/components/gallery-modal-provider"
 import { VideoSection } from "@/components/video-section"
 import { ContactForm } from "@/components/contact-form"
 import { SiteFooter } from "@/components/site-footer"
@@ -18,29 +19,33 @@ export default async function Home() {
     <main className="relative min-h-dvh bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100">
       <IntroSplash />
 
-      <SiteNavbar planImagenes={planImagenes} />
+      {/* Une el menú de arriba con las tarjetas de "Elige tu momento": los dos abren la misma
+          ventana de galería, para que tocar una categoría en el menú funcione de una vez. */}
+      <GalleryModalProvider>
+        <SiteNavbar planImagenes={planImagenes} />
 
-      <section className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-6 pb-16 pt-28 sm:pt-32">
-        <p className="text-sm tracking-[0.3em] text-slate-500 dark:text-zinc-400">FOTOGRAFÍA · BLANCO Y NEGRO</p>
-        <h1 className="max-w-4xl text-balance text-5xl font-thin leading-[1.1] tracking-tight text-slate-900 transition-colors duration-300 dark:text-zinc-50 sm:text-7xl">
-          Momentos capturados con luz, sombra y silencio.
-        </h1>
-        <p className="max-w-xl text-pretty leading-relaxed text-slate-600 dark:text-zinc-400">
-          Gabriel Cabezas Salgado, fotógrafo profesional en Santiago: matrimonios, colegios,
-          cumpleaños, deporte y fotografía para empresas. Explora las categorías y cotiza por
-          WhatsApp.
-        </p>
-        <a
-          href="#contacto"
-          className="rounded-full bg-yellow-400 px-6 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-yellow-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-zinc-950"
-        >
-          Cotiza tu evento
-        </a>
-      </section>
+        <section className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-6 pb-16 pt-28 sm:pt-32">
+          <p className="text-sm tracking-[0.3em] text-slate-500 dark:text-zinc-400">FOTOGRAFÍA · BLANCO Y NEGRO</p>
+          <h1 className="max-w-4xl text-balance text-5xl font-thin leading-[1.1] tracking-tight text-slate-900 transition-colors duration-300 dark:text-zinc-50 sm:text-7xl">
+            Momentos capturados con luz, sombra y silencio.
+          </h1>
+          <p className="max-w-xl text-pretty leading-relaxed text-slate-600 dark:text-zinc-400">
+            Gabriel Cabezas Salgado, fotógrafo profesional en Santiago: matrimonios, colegios,
+            cumpleaños, deporte y fotografía para empresas. Explora las categorías y cotiza por
+            WhatsApp.
+          </p>
+          <a
+            href="#contacto"
+            className="rounded-full bg-yellow-400 px-6 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-yellow-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-zinc-950"
+          >
+            Cotiza tu evento
+          </a>
+        </section>
 
-      <FeaturedStrip />
+        <FeaturedStrip />
 
-      <CategoryGrid />
+        <CategoryGrid />
+      </GalleryModalProvider>
 
       <VideoSection />
 

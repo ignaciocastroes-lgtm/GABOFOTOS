@@ -6,19 +6,21 @@ import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
 import type { PlanImagenes } from "@/lib/planes"
 import { ConoceGabrielModal } from "./conoce-gabriel-modal"
+import { useGalleryModal } from "./gallery-modal-provider"
 import { LogoSecreto } from "./logo-secreto"
 import { PresupuestosModal } from "./presupuestos-modal"
 
 const categoryLinks = [
-  { href: "#matrimonios", label: "MATRIMONIOS" },
-  { href: "#colegios", label: "COLEGIOS" },
-  { href: "#cumpleanos", label: "CUMPLEAÑOS" },
-  { href: "#deporte", label: "DEPORTE" },
-]
+  { id: "matrimonios", label: "MATRIMONIOS" },
+  { id: "colegios", label: "COLEGIOS" },
+  { id: "cumpleanos", label: "CUMPLEAÑOS" },
+  { id: "deporte", label: "DEPORTE" },
+] as const
 
 const linkClass = "transition-colors hover:text-yellow-500 dark:hover:text-yellow-400"
 
 export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
+  const { openCategory } = useGalleryModal()
   const [menuOpen, setMenuOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
   const [plansOpen, setPlansOpen] = useState(false)
@@ -80,9 +82,9 @@ export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
           <div className="flex items-center gap-4 sm:gap-6">
             <nav className="hidden items-center gap-6 text-xs tracking-[0.2em] text-slate-500 xl:flex dark:text-zinc-400">
               {categoryLinks.map((link) => (
-                <a key={link.href} className={linkClass} href={link.href}>
+                <button key={link.id} type="button" className={linkClass} onClick={() => openCategory(link.id)}>
                   {link.label}
-                </a>
+                </button>
               ))}
               <button type="button" onClick={openAbout} className={linkClass}>
                 CONOCE A GABRIEL
@@ -121,14 +123,17 @@ export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
           >
             <div className="mx-auto flex max-w-6xl flex-col px-6 py-2 text-sm tracking-[0.2em] text-slate-600 dark:text-zinc-300">
               {categoryLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`py-3 ${linkClass}`}
+                <button
+                  key={link.id}
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    openCategory(link.id)
+                  }}
+                  className={`py-3 text-left ${linkClass}`}
                 >
                   {link.label}
-                </a>
+                </button>
               ))}
               <button type="button" onClick={openAbout} className={`py-3 text-left ${linkClass}`}>
                 CONOCE A GABRIEL

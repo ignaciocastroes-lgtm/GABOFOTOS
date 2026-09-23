@@ -50,7 +50,10 @@ Vercel → tu proyecto → **Settings → Environment Variables**. Agrégalas pa
 | `ADMIN_PASSWORD` | La contraseña de Gabo para `/admin` (larga; sin comillas ni espacios) |
 | `ADMIN_SESSION_SECRET` | Texto largo al azar, por ejemplo el resultado de `openssl rand -hex 32` (marca *Sensitive*) |
 | `NEXT_PUBLIC_SITE_URL` | `https://www.gabofotos.cl` (sin barra final) |
-| `FLICKR_API_KEY` | Opcional. Solo si quieres sumar sus álbumes de Flickr. Al ser un sitio de negocio, Flickr probablemente pide la clave comercial |
+
+Las fotos de Flickr se traen solas, sin ninguna variable ni clave que configurar (Flickr ahora exige
+cuenta Pro para dar API keys; el sitio usa en su lugar el feed público de cada álbum, que es gratis y no
+tiene ese requisito — ver el README, sección «Flickr, sin API key»).
 
 Después de guardar las variables hay que **volver a desplegar** (Deployments → los tres puntos → *Redeploy*).
 Una variable nueva no afecta a un despliegue que ya existe.

@@ -1,3 +1,5 @@
+import { agradecimientos } from "@/lib/agradecimientos"
+import { siteConfig } from "@/lib/site-config"
 import { listarVideos } from "@/lib/supabase-rest"
 import { MAX_VIDEOS, type VideoPublico } from "@/lib/videos"
 import { VideoTunnel } from "./video-tunnel"
@@ -13,9 +15,23 @@ async function cargarVideos(): Promise<VideoPublico[]> {
   }
 }
 
-// Sin videos cargados, la sección no aparece: nunca se muestra un espacio vacío.
+// Mientras Gabo no cargue ningún video desde /admin, esta sección muestra en su lugar la fila fija
+// de agradecimientos (lib/agradecimientos.ts). El día que suba uno desde /admin, esos pasan a
+// mostrarse a ellos en vez de la fila fija, sin tocar código.
 export async function VideoSection() {
-  const videos = await cargarVideos()
-  if (videos.length === 0) return null
-  return <VideoTunnel videos={videos} />
+  const subidos = await cargarVideos()
+
+  if (subidos.length > 0) {
+    return <VideoTunnel videos={subidos} kicker="VIDEOS" title="Míralo en movimiento" channelUrl={siteConfig.social.youtube.url} />
+  }
+
+  return (
+    <VideoTunnel
+      videos={agradecimientos}
+      kicker="AGRADECIMIENTOS"
+      title="Gracias por dejarme capturar tu historia"
+      subtitle="Algunos momentos que he tenido el privilegio de registrar. Puedes ver más en el canal completo."
+      channelUrl={siteConfig.social.youtube.url}
+    />
+  )
 }

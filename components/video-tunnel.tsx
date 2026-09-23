@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { ExternalLink, Play, X } from "lucide-react"
+import { ExternalLink, Play, X, Youtube } from "lucide-react"
 import { whatsappMessageLink } from "@/lib/site-config"
 import { miniaturaYoutube, urlYoutube, type VideoPublico } from "@/lib/videos"
 import { WhatsAppIcon } from "./icons"
@@ -13,9 +13,8 @@ function mensajeWhatsapp(video: VideoPublico) {
     : "Hola Gabriel, vi uno de los videos de tu sitio web y me gustaría cotizar algo así."
 }
 
-function VideoModal({ video, onClose }: { video: VideoPublico; onClose: () => void }) {
+function VideoModal({ video, titulo, onClose }: { video: VideoPublico; titulo: string; onClose: () => void }) {
   const cerrar = useRef<HTMLButtonElement>(null)
-  const titulo = video.titulo.trim() || "Video"
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -102,29 +101,72 @@ function VideoModal({ video, onClose }: { video: VideoPublico; onClose: () => vo
   )
 }
 
-/** Sección «Videos» del inicio: una tarjeta por video; cada una abre su ventana con el video y el botón a WhatsApp. */
-export function VideoTunnel({ videos }: { videos: VideoPublico[] }) {
-  const [activoId, setActivoId] = useState<string | null>(null)
-  const activo = videos.find((v) => v.id === activoId) ?? null
-  const cerrar = useCallback(() => setActivoId(null), [])
+const TARJETA = "w-40 shrink-0 snap-start sm:w-48"
+
+/** La tarjeta al final de la fila: no abre un video, lleva al canal completo de YouTube. */
+function TarjetaCanal({ url }: { url: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${TARJETA} group relative flex aspect-[9/16] flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border-2 border-dashed border-slate-300 text-center transition-colors duration-300 hover:border-yellow-400 dark:border-zinc-700`}
+    >
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500 transition-colors duration-300 group-hover:bg-yellow-400 group-hover:text-zinc-950 dark:bg-zinc-800 dark:text-zinc-400">
+        <Youtube className="h-6 w-6" aria-hidden="true" />
+      </span>
+      <span className="px-3 text-sm font-light leading-snug text-slate-600 transition-colors duration-300 group-hover:text-yellow-600 dark:text-zinc-300 dark:group-hover:text-yellow-400">
+        Ver el canal completo
+      </span>
+    </a>
+  )
+}
+
+type VideoTunnelProps = {
+  videos: VideoPublico[]
+  kicker: string
+  title: string
+  /** Texto corto debajo del título. Opcional: si no se pasa, no se muestra. */
+  subtitle?: string
+  /** Enlace al canal de YouTube. Si se pasa, agrega una tarjeta extra al final de la fila. */
+  channelUrl?: string
+}
+
+/**
+ * Fila de videos, estilo Netflix: tarjetas verticales (como un Short) que se ven en blanco y negro
+ * y pasan a color al pasar el mouse o tocarlas, con una leve ampliación. La fila se desliza hacia
+ * los lados en vez de armar una grilla fija, para que quepan bien sea que haya 3 videos o 20.
+ */
+export function VideoTunnel({ videos, kicker, title, subtitle, channelUrl }: VideoTunnelProps) {
+  const [activoIndex, setActivoIndex] = useState<number | null>(null)
+  const activo = activoIndex !== null ? videos[activoIndex] : null
+  const tituloActivo = activo ? activo.titulo.trim() || `Video ${activoIndex! + 1}` : ""
+  const cerrar = useCallback(() => setActivoIndex(null), [])
 
   return (
-    <section id="videos" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16 sm:py-24">
-      <p className="text-xs tracking-[0.3em] text-yellow-700 dark:text-yellow-400">VIDEOS</p>
-      <h2 className="mt-2 text-3xl font-light tracking-tight text-slate-900 transition-colors duration-300 dark:text-zinc-50 sm:text-4xl">
-        Míralo en movimiento
-      </h2>
+    <section id="videos" className="scroll-mt-24 py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <p className="text-xs tracking-[0.3em] text-yellow-700 dark:text-yellow-400">{kicker}</p>
+        <h2 className="mt-2 text-3xl font-light tracking-tight text-slate-900 transition-colors duration-300 dark:text-zinc-50 sm:text-4xl">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mt-3 max-w-xl text-pretty leading-relaxed text-slate-600 dark:text-zinc-400">{subtitle}</p>
+        )}
+      </div>
 
-      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* La fila se sale del ancho centrado (mx-auto max-w-6xl) a propósito: así, en celular, la
+          última tarjeta asoma cortada y se nota de inmediato que se puede seguir deslizando. */}
+      <ul className="mt-8 flex snap-x snap-proximity gap-4 overflow-x-auto px-6 pb-4 [scrollbar-width:none] sm:mx-auto sm:max-w-6xl [&::-webkit-scrollbar]:hidden">
         {videos.map((video, index) => {
           const titulo = video.titulo.trim() || `Video ${index + 1}`
           return (
-            <li key={video.id}>
+            <li key={video.id} className={TARJETA}>
               <button
                 type="button"
-                onClick={() => setActivoId(video.id)}
+                onClick={() => setActivoIndex(index)}
                 aria-label={`Ver video: ${titulo}`}
-                className="group relative block aspect-video w-full overflow-hidden rounded-lg bg-slate-200 text-left ring-1 ring-slate-300 transition-all duration-300 hover:ring-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:bg-zinc-900 dark:ring-zinc-800"
+                className="group relative block aspect-[9/16] w-full overflow-hidden rounded-lg bg-slate-200 text-left ring-1 ring-slate-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:bg-zinc-900 dark:ring-zinc-800"
               >
                 {/* <img> a propósito: la portada la sirve YouTube (i.ytimg.com), sin pasar por el optimizador de Vercel. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -132,22 +174,27 @@ export function VideoTunnel({ videos }: { videos: VideoPublico[] }) {
                   src={miniaturaYoutube(video.youtubeId)}
                   alt=""
                   loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover bn-con-mouse transition-all duration-500 group-hover:scale-105"
+                  className="absolute inset-0 h-full w-full object-cover bn-con-mouse transition-transform duration-500 group-hover:scale-110"
                 />
-                <span className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
-                <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-yellow-400 text-zinc-950 shadow-lg transition-transform duration-300 group-hover:scale-110">
-                  <Play className="ml-0.5 h-6 w-6 fill-current" aria-hidden="true" />
+                <span className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/10 to-transparent" />
+                <span className="absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-yellow-400/95 text-zinc-950 opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100">
+                  <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
                 </span>
-                <span className="absolute inset-x-0 bottom-0 p-4 text-base font-light tracking-wide text-zinc-50">
+                <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-light leading-snug tracking-wide text-zinc-50">
                   {titulo}
                 </span>
               </button>
             </li>
           )
         })}
+        {channelUrl && (
+          <li>
+            <TarjetaCanal url={channelUrl} />
+          </li>
+        )}
       </ul>
 
-      {activo && <VideoModal video={activo} onClose={cerrar} />}
+      {activo && <VideoModal video={activo} titulo={tituloActivo} onClose={cerrar} />}
     </section>
   )
 }

@@ -15,7 +15,7 @@ export function PlanFoto({ imagen, sizes }: { imagen: PlanImagen; sizes: string 
       fill
       sizes={sizes}
       // Las imágenes que sube Gabo (Supabase) ya vienen reducidas desde su CDN.
-      unoptimized={imagen.personalizada}
+      unoptimized={imagen.remota}
       style={{ objectPosition: imagen.posicion }}
       className="object-cover"
     />

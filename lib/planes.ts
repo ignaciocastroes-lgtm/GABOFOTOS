@@ -1,6 +1,15 @@
 // Imágenes de los servicios del modal «Presupuestos y contacto».
-// Cada servicio trae una imagen original (archivo en public/images) y Gabo puede cambiarla desde
-// /admin → pestaña «Presupuestos». Si no cambia nada, se ve la original.
+//
+// Cada servicio trae una imagen `original` (archivo en public/images), que se usa si no hay nada
+// mejor. Si el servicio tiene `flickrAlbumId`, el sitio intenta traer la primera foto de ese
+// álbum real de Flickr (mismo mecanismo sin clave que alimenta las galerías, ver lib/flickr.ts) y
+// la usa en su lugar. Por encima de las dos, siempre gana lo que Gabo suba a mano desde
+// /admin → pestaña «Presupuestos».
+// Revisado el 23-sep-2026: los 4 servicios que también son categorías de la portada (Matrimonios,
+// Colegios, Cumpleaños, Deporte) ya tienen álbum real y por lo tanto foto real. Bautizos no tiene
+// álbum propio en Flickr; se usa el álbum «Familia» como la aproximación real más cercana (bodas,
+// colegios y deportes sí son exactos; este no lo es del todo) hasta que Gabo suba una foto de
+// bautizo de verdad desde /admin o cree un álbum «Bautizos».
 // Este archivo no toca el servidor: lo usan las rutas, el panel y los componentes del navegador.
 
 /** Fila de la tabla `plan_imagenes` (una por servicio con imagen cambiada). */
@@ -16,12 +25,26 @@ export const PLANES = [
   {
     id: "matrimonios",
     titulo: "Matrimonios",
+    flickrAlbumId: "72157625457217000",
     original: { src: "/images/portfolio/social-matrimonio-playa.jpg", ancho: 1040, alto: 1560, posicion: "50% 40%" },
   },
   {
     id: "colegios",
     titulo: "Colegios",
+    flickrAlbumId: "72177720335758446",
     original: { src: "/images/portfolio/colegios-foto-de-curso.jpg", ancho: 1517, alto: 870, posicion: "50% 50%" },
+  },
+  {
+    id: "cumpleanos",
+    titulo: "Cumpleaños",
+    flickrAlbumId: "72157645358669889",
+    original: { src: "/images/portfolio/social-fiesta-gala.jpg", ancho: 1599, alto: 1066, posicion: "50% 40%" },
+  },
+  {
+    id: "deporte",
+    titulo: "Deporte",
+    flickrAlbumId: "72157625457219402",
+    original: { src: "/images/portfolio/deporte-futbol-terreno.jpg", ancho: 768, alto: 1024, posicion: "50% 40%" },
   },
   {
     id: "cuadros",
@@ -41,6 +64,8 @@ export const PLANES = [
   {
     id: "bautizos",
     titulo: "Bautizos",
+    // «Familia» de Flickr, como la aproximación real más cercana (ver nota arriba).
+    flickrAlbumId: "72157621802433227",
     original: { src: "/images/gabofotos-logo.jpg", ancho: 1378, alto: 1378, posicion: "50% 50%" },
   },
   {
@@ -61,9 +86,9 @@ export type PlanImagen = {
   src: string
   ancho: number
   alto: number
-  /** true si Gabo la cambió desde /admin (viene de Supabase y no pasa por el optimizador de Next). */
-  personalizada: boolean
-  /** Encuadre (object-position). Las imágenes que sube Gabo van centradas. */
+  /** true si la imagen viene de fuera (Flickr o Supabase): no pasa por el optimizador de Next. */
+  remota: boolean
+  /** Encuadre (object-position). Las imágenes remotas van centradas. */
   posicion: string
 }
 
@@ -71,6 +96,6 @@ export type PlanImagenes = Record<PlanId, PlanImagen>
 
 export function imagenesOriginales(): PlanImagenes {
   const salida = {} as PlanImagenes
-  for (const p of PLANES) salida[p.id] = { ...p.original, personalizada: false }
+  for (const p of PLANES) salida[p.id] = { ...p.original, remota: false }
   return salida
 }

@@ -14,7 +14,7 @@ Se despliega en Vercel; las fotos que sube Gabo viven en Supabase.
 - **Portada** con logo de entrada, botón «Cotiza tu evento», carrusel de trabajos y las 4 categorías principales de Gabo (Matrimonios, Colegios, Cumpleaños, Deporte), cada una con su galería.
 - **Formulario de contacto** que no envía datos a ningún servidor: arma el mensaje y abre WhatsApp con él escrito.
 - **«Conoce a Gabriel»** (menú superior): su historia (tomada de su brochure), formación y equipo, trabajo con empresas (foto de productos, fotografía profesional y comercial, iluminación), galería «Gabo en acción» (blanco y negro; al tocar una foto pasa a color y ofrece consultar por WhatsApp o Instagram), contacto y descarga del brochure.
-- **«Presupuestos y contacto»** (menú superior): los servicios (matrimonios, colegios, cuadros de graduación con marco —también vende las fotos en digital—, sesiones, empresas, bautizos y otros eventos), cada uno con una imagen y su botón para cotizar por WhatsApp, más los datos de contacto. Las imágenes se cambian desde `/admin` → pestaña **Presupuestos**.
+- **«Presupuestos y contacto»** (menú superior): 9 servicios (Matrimonios, Colegios, Cumpleaños, Deporte, Cuadros de graduación con marco —también vende las fotos en digital—, Sesiones, Empresas, Bautizos y Otros eventos), cada uno con una imagen y su botón para cotizar por WhatsApp, más los datos de contacto. Los 4 primeros (los mismos de la portada) muestran una foto real de su álbum de Flickr; Bautizos usa el álbum «Familia» como la aproximación real más cercana, ya que Gabo no tiene un álbum de Bautizos todavía. Cualquiera se puede reemplazar a mano desde `/admin` → pestaña **Presupuestos**, y esa elección de Gabo siempre gana sobre Flickr.
 - **Panel `/admin`** con tres pestañas, sin tocar código: **Fotos** (subir, ordenar, ocultar, describir y eliminar), **Videos** y **Presupuestos** (cambiar la imagen de cada servicio).
 - **Videos:** sección «Videos» con hasta 3 videos de YouTube. Cada uno abre una ventana con el video y un botón para cotizar por WhatsApp. Se cargan desde `/admin` → pestaña **Videos**, pegando el enlace de YouTube (sin videos cargados, la sección no aparece).
 - **Buscadores y redes:** metadatos, imagen para compartir (`public/og.jpg`), datos estructurados JSON-LD, `sitemap.xml`, `robots.txt` y `manifest`.
@@ -53,6 +53,7 @@ proxy.ts              primera barrera de /admin y /api/admin
 | Niveles y medida de los cuadros de graduación | `lib/frames.ts` |
 | Historia, trayectoria y trabajo con empresas («Conoce a Gabriel») | `components/conoce-gabriel-modal.tsx` |
 | Textos de cada servicio («Presupuestos y contacto») | `components/presupuestos-modal.tsx` (los cuadros de graduación, en `components/frame-picker.tsx`) |
+| Qué álbum de Flickr usa cada servicio | `lib/planes.ts` (campo `flickrAlbumId`); la prioridad Flickr/Supabase está en `lib/planes-data.ts` |
 | Imágenes originales de los servicios | `lib/planes.ts` (se cambian sin código desde `/admin` → Presupuestos) |
 | Cobertura (Región Metropolitana y regiones), teléfono y redes dentro de los modales | `components/contacto-bloque.tsx` y `lib/site-config.ts` |
 | Opciones del formulario de contacto | `components/contact-form.tsx` |

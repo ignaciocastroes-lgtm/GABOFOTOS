@@ -27,6 +27,14 @@ const servicios: Record<Exclude<PlanId, "cuadros">, Servicio> = {
       "Licenciaturas, galas de octavo básico y IV medio, registro para el anuario y cuadros de graduación. Coordinación con directivos, docentes y apoderados, y entrega puntual a las familias.",
     tema: "una cobertura de Colegio (licenciatura, gala o anuario)",
   },
+  cumpleanos: {
+    texto: "Cumpleaños infantiles, familiares y aniversarios. Cobertura por horas, con edición profesional incluida.",
+    tema: "un Cumpleaños",
+  },
+  deporte: {
+    texto: "Fútbol, hockey, golf y otras disciplinas. Cobertura de partidos, torneos y entrenamientos.",
+    tema: "una cobertura Deportiva",
+  },
   sesiones: {
     texto: "Elige el tipo de sesión y te contamos cómo la armamos:",
     items: ["Sesión Interior", "Sesión Exterior", "Fotografía Deportiva"],
@@ -43,9 +51,8 @@ const servicios: Record<Exclude<PlanId, "cuadros">, Servicio> = {
     tema: "un Bautizo",
   },
   otros: {
-    texto:
-      "Matrimonio civil, primera comunión, cumpleaños y celebraciones privadas. Cuéntanos la fecha y el lugar y te respondemos por WhatsApp.",
-    tema: "un evento (matrimonio civil, primera comunión o cumpleaños)",
+    texto: "Matrimonio civil, primera comunión y otras celebraciones privadas. Cuéntanos la fecha y el lugar y te respondemos por WhatsApp.",
+    tema: "un evento (matrimonio civil o primera comunión)",
   },
 }
 

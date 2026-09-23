@@ -1,10 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { ExternalLink, Play, X, Youtube } from "lucide-react"
+import { ExternalLink, Play, X } from "lucide-react"
 import { whatsappMessageLink } from "@/lib/site-config"
 import { miniaturaYoutube, urlYoutube, type VideoPublico } from "@/lib/videos"
-import { WhatsAppIcon } from "./icons"
+import { WhatsAppIcon, YoutubeIcon } from "./icons"
 
 function mensajeWhatsapp(video: VideoPublico) {
   const titulo = video.titulo.trim()
@@ -113,7 +113,7 @@ function TarjetaCanal({ url }: { url: string }) {
       className={`${TARJETA} group relative flex aspect-[9/16] flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border-2 border-dashed border-slate-300 text-center transition-colors duration-300 hover:border-yellow-400 dark:border-zinc-700`}
     >
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500 transition-colors duration-300 group-hover:bg-yellow-400 group-hover:text-zinc-950 dark:bg-zinc-800 dark:text-zinc-400">
-        <Youtube className="h-6 w-6" aria-hidden="true" />
+        <YoutubeIcon className="h-6 w-6" />
       </span>
       <span className="px-3 text-sm font-light leading-snug text-slate-600 transition-colors duration-300 group-hover:text-yellow-600 dark:text-zinc-300 dark:group-hover:text-yellow-400">
         Ver el canal completo

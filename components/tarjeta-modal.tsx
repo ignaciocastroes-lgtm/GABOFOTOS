@@ -1,13 +1,34 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import { X } from "lucide-react"
+import { Download, X } from "lucide-react"
 import Image from "next/image"
+import { siteConfig, whatsappMessageLink } from "@/lib/site-config"
+import { WhatsAppIcon } from "./icons"
 
 type TarjetaModalProps = {
   open: boolean
   onClose: () => void
+}
+
+// vCard con los datos de contacto de Gabo: el botón «Guardar contacto» descarga este archivo, y el
+// celular (Android o iPhone) lo reconoce y ofrece agregarlo directo a la agenda.
+function tarjetaVcf() {
+  const lineas = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `N:${siteConfig.owner.split(" ").reverse().join(";")};;;`,
+    `FN:${siteConfig.owner}`,
+    "ORG:GABOFOTOS",
+    "TITLE:Fotógrafo profesional",
+    `TEL;TYPE=CELL,VOICE:${siteConfig.phone.tel}`,
+    `EMAIL:${siteConfig.email}`,
+    `URL:${siteConfig.url}`,
+    `ADR;TYPE=WORK:;;${siteConfig.location};;;;`,
+    "END:VCARD",
+  ]
+  return lineas.join("\r\n")
 }
 
 /** Tarjeta de contacto de Gabo, en grande. Se abre tocando 3 veces el logo (ver logo-secreto.tsx). */
@@ -27,6 +48,18 @@ export function TarjetaModal({ open, onClose }: TarjetaModalProps) {
       document.body.style.overflow = ""
     }
   }, [open, onClose])
+
+  const guardarContacto = useCallback(() => {
+    const blob = new Blob([tarjetaVcf()], { type: "text/vcard;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "gabofotos.vcf"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }, [])
 
   if (!open || typeof document === "undefined") return null
 
@@ -49,6 +82,29 @@ export function TarjetaModal({ open, onClose }: TarjetaModalProps) {
             className="h-auto w-full"
           />
         </div>
+
+        {/* En el celular, descarga el .vcf y el sistema ofrece agregarlo a los Contactos.
+            En cualquier equipo, wa.me abre WhatsApp (la app si está instalada, o WhatsApp Web). */}
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={guardarContacto}
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-800 px-5 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+          >
+            <Download className="h-4 w-4" />
+            Guardar contacto
+          </button>
+          <a
+            href={whatsappMessageLink("Hola Gabriel, vengo de tu tarjeta de contacto y quisiera conversar.")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-green-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            Escribir por WhatsApp
+          </a>
+        </div>
+
         <button
           ref={cerrar}
           type="button"

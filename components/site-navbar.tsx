@@ -53,7 +53,7 @@ export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md transition-colors duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
           <LogoSecreto>
             <a href="#" className="flex items-center gap-3">
               {/* Logo dinámico según el tema: negro en modo día, blanco en modo noche */}
@@ -79,7 +79,10 @@ export function SiteNavbar({ planImagenes }: { planImagenes: PlanImagenes }) {
             </a>
           </LogoSecreto>
 
-          <div className="flex items-center gap-4 sm:gap-6">
+          {/* Separa el nombre GABOFOTOS del menú (antes se veían pegados, ej. "GABOFOTOS MATRIMONIOS"). */}
+          <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-300 xl:block dark:bg-zinc-700" />
+
+          <div className="flex flex-1 items-center justify-end gap-4 sm:gap-6">
             <nav className="hidden items-center gap-6 text-xs tracking-[0.2em] text-slate-500 xl:flex dark:text-zinc-400">
               {categoryLinks.map((link) => (
                 <button key={link.id} type="button" className={linkClass} onClick={() => openCategory(link.id)}>

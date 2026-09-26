@@ -8,6 +8,7 @@ import type { PlanImagen } from "@/lib/planes"
  * puede cambiar la imagen desde /admin, cualquier descripción fija podría quedar equivocada.
  */
 export function PlanFoto({ imagen, sizes }: { imagen: PlanImagen; sizes: string }) {
+  const contain = imagen.ajuste === "contain"
   return (
     <Image
       src={imagen.src}
@@ -17,7 +18,7 @@ export function PlanFoto({ imagen, sizes }: { imagen: PlanImagen; sizes: string 
       // Las imágenes que sube Gabo (Supabase) ya vienen reducidas desde su CDN.
       unoptimized={imagen.remota}
       style={{ objectPosition: imagen.posicion }}
-      className="object-cover"
+      className={contain ? "object-contain" : "object-cover"}
     />
   )
 }

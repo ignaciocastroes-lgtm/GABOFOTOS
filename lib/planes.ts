@@ -5,11 +5,9 @@
 // álbum real de Flickr (mismo mecanismo sin clave que alimenta las galerías, ver lib/flickr.ts) y
 // la usa en su lugar. Por encima de las dos, siempre gana lo que Gabo suba a mano desde
 // /admin → pestaña «Presupuestos».
-// Revisado el 23-sep-2026: los 4 servicios que también son categorías de la portada (Matrimonios,
-// Colegios, Cumpleaños, Deporte) ya tienen álbum real y por lo tanto foto real. Bautizos no tiene
-// álbum propio en Flickr; se usa el álbum «Familia» como la aproximación real más cercana (bodas,
-// colegios y deportes sí son exactos; este no lo es del todo) hasta que Gabo suba una foto de
-// bautizo de verdad desde /admin o cree un álbum «Bautizos».
+// Revisado el 26-sep-2026: los 4 servicios que también son categorías de la portada (Matrimonios,
+// Colegios, Cumpleaños, Deporte) ya tienen álbum real y por lo tanto foto real. Bautizos ya tiene
+// su propia foto real (globos) como original, así que tampoco necesita álbum de Flickr.
 // Este archivo no toca el servidor: lo usan las rutas, el panel y los componentes del navegador.
 
 /** Fila de la tabla `plan_imagenes` (una por servicio con imagen cambiada). */
@@ -20,6 +18,10 @@ export type PlanImagenDB = {
   alto: number
   updated_at: string
 }
+
+/** Cómo encaja la imagen en su caja: "cover" (llena y recorta, el default) o "contain" (se ve
+ *  completa, con la caja de fondo asomando a los lados si la proporción no calza exacto). */
+type Ajuste = "cover" | "contain"
 
 export const PLANES = [
   {
@@ -54,19 +56,41 @@ export const PLANES = [
   {
     id: "sesiones",
     titulo: "Sesiones fotográficas",
-    original: { src: "/images/portfolio/retratos-portada.jpg", ancho: 735, alto: 1310, posicion: "50% 25%" },
+    // Foto de la señora de Gabo: se muestra completa (ajuste "contain"), sin recortarla.
+    original: {
+      src: "/images/sesiones/sesion-vestido-negro.jpg",
+      ancho: 533,
+      alto: 799,
+      posicion: "50% 50%",
+      ajuste: "contain" as Ajuste,
+    },
   },
   {
     id: "empresas",
     titulo: "Empresas: productos y comercial",
-    original: { src: "/images/empresas/foto-producto-agua-tonica.jpg", ancho: 720, alto: 1340, posicion: "50% 75%" },
+    // Foto de botella de vino de Gabo (su álbum de Flickr, gcabezasplop). No se pudo bajar el
+    // archivo a este proyecto por una restricción de red del entorno donde se hizo este cambio,
+    // así que por ahora enlaza directo al original en Flickr (remota: true). Ideal: que Gabo suba
+    // el archivo real desde /admin → Presupuestos → Empresas, para no depender de un link externo.
+    original: {
+      src: "https://live.staticflickr.com/65535/55543738175_14e2cc51a7_b.jpg",
+      ancho: 686,
+      alto: 1024,
+      posicion: "50% 50%",
+      remota: true as const,
+    },
   },
   {
     id: "bautizos",
     titulo: "Bautizos",
-    // «Familia» de Flickr, como la aproximación real más cercana (ver nota arriba).
-    flickrAlbumId: "72157621802433227",
-    original: { src: "/images/gabofotos-logo.jpg", ancho: 1378, alto: 1378, posicion: "50% 50%" },
+    // Foto real de un bautizo (decoración con globos) que reemplaza la aproximación del álbum
+    // «Familia» de Flickr (ver nota de cabecera): ya no hace falta flickrAlbumId aquí.
+    original: {
+      src: "/images/bautizos/bautizo-globos-azules.webp",
+      ancho: 500,
+      alto: 500,
+      posicion: "50% 50%",
+    },
   },
   {
     id: "otros",
@@ -90,12 +114,17 @@ export type PlanImagen = {
   remota: boolean
   /** Encuadre (object-position). Las imágenes remotas van centradas. */
   posicion: string
+  /** "cover" (default, llena y recorta) o "contain" (se ve completa, sin recortar). */
+  ajuste?: Ajuste
 }
 
 export type PlanImagenes = Record<PlanId, PlanImagen>
 
 export function imagenesOriginales(): PlanImagenes {
   const salida = {} as PlanImagenes
-  for (const p of PLANES) salida[p.id] = { ...p.original, remota: false }
+  for (const p of PLANES) {
+    const original: { remota?: boolean } = p.original
+    salida[p.id] = { ...p.original, remota: original.remota ?? false }
+  }
   return salida
 }

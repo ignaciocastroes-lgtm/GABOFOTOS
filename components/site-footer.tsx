@@ -87,9 +87,8 @@ export function SiteFooter() {
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-light tracking-[0.2em] text-slate-900 transition-colors duration-300 dark:text-zinc-100">GABO</h2>
             <p className="max-w-md text-pretty text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
-              Fotógrafo dedicado a capturar la emoción de cada instante en blanco
-              y negro. Cada imagen es una búsqueda de la verdad detrás del gesto,
-              la luz y el silencio.
+              Fotógrafo dedicado a capturar la emoción de cada instante. Cada imagen
+              es una búsqueda de la verdad detrás del gesto, la luz y el silencio.
             </p>
             <blockquote className="border-l-2 border-yellow-500 pl-4 text-pretty text-sm italic leading-relaxed text-slate-700 dark:border-yellow-400 dark:text-zinc-300">
               &ldquo;La técnica se aprende, pero la sensibilidad se cultiva.&rdquo;
